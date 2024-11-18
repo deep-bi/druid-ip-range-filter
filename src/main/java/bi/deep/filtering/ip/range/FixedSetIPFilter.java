@@ -49,31 +49,27 @@ public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements Di
 
     private final String dimension;
     private final Set<String> ranges;
-    private final boolean ignoreInvalidAddress;
 
     @JsonCreator
     public FixedSetIPFilter(
             @JsonProperty("dimension") String dimension,
-            @JsonProperty("ranges") Set<String> ranges,
-            @JsonProperty("ignoreInvalidAddress") @Nullable Boolean ignoreInvalidAddress) {
+            @JsonProperty("ranges") Set<String> ranges) {
         this.dimension = Preconditions.checkNotNull(dimension, "dimension");
         this.ranges = Preconditions.checkNotNull(ranges, "ranges");
 
         if (CollectionUtils.isEmpty(this.ranges)) {
             throw InvalidInput.exception("range cannot be null or empty");
         }
-
-        this.ignoreInvalidAddress = ignoreInvalidAddress != null && ignoreInvalidAddress;
     }
 
     @Override
     public Filter toFilter() {
-        final SortedSet<IPAddress> addresses = ranges.stream()
+        final SortedSet<IPAddress> addresses = getRanges().stream()
                 .map(this::map)
                 .filter(Objects::nonNull)
                 .sorted()
                 .collect(Collectors.toCollection(TreeSet::new));
-        return new FixedSetIPFilterImpl(dimension, addresses, ignoreInvalidAddress);
+        return new FixedSetIPFilterImpl(dimension, addresses);
     }
 
     @JsonProperty("dimension")
@@ -84,11 +80,6 @@ public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements Di
     @JsonProperty("ranges")
     public Set<String> getRanges() {
         return ranges;
-    }
-
-    @JsonProperty("ignoreInvalidAddress")
-    public boolean isIgnoreInvalidAddress() {
-        return ignoreInvalidAddress;
     }
 
     public IPAddress map(final String addressStr) {
@@ -114,8 +105,6 @@ public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements Di
                 .appendByteArray(Hashing.sha256()
                         .hashString(ranges.toString(), StandardCharsets.UTF_8)
                         .asBytes())
-                .appendByte(DimFilterUtils.STRING_SEPARATOR)
-                .appendBoolean(ignoreInvalidAddress)
                 .build();
     }
 }

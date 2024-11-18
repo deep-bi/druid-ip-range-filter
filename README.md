@@ -85,10 +85,10 @@ It can be beneficial for security analytics, traffic analysis, and compliance re
 ignored if the ranges contain only one IP type, and the provided address is of a different type (default: false).
 
 
-### 3. FixedIPSetFilter
+### 3. FixedSetIPFilter
 
 **Description:**
-`FixedIPSetFilter` enables filtering based on a fixed set of specific IP addresses. This filter is useful when you want 
+`FixedSetIPFilter` enables filtering based on a fixed set of specific IP addresses. This filter is useful when you want 
 to focus on known individual addresses rather than ranges.
 
 **Usage:**
@@ -105,8 +105,7 @@ access control or compliance checks.
     "192.168.1.10",
     "192.168.1.20",
     "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
-  ],
-  "ignoreInvalidAddress": false
+  ]
 }
 ```
 
@@ -114,7 +113,6 @@ access control or compliance checks.
 * `type`: should be `ip_fixed_range` as type.
 * `dimension`: Specifies the dimension (column) holding the IP address to be filtered.
 * `ranges`: Defines the IP ranges set which can contain both IPv4 and IPv6.
-* `ignoreInvalidAddress`: When set true, invalid addresses will be ignored (default: false).
 
 ---
 
