@@ -1,0 +1,78 @@
+name: Release Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build and Test Extensions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fail if branch is not allowed
+        run: |
+          if [[ ! "$GITHUB_REF" =~ ^refs/heads/release/.*$ ]]; then
+          echo "Checkstyle skipped for this branch."
+          exit 1
+          fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: 8
+
+      - name: Build and test
+        run: |
+          mvn clean test -B 
+
+
+  release:
+    permissions: write-all
+    needs:
+      - build-and-test
+    runs-on: ubuntu-latest
+
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get Version from Pom
+        id: get-version
+        run: |
+          echo "Retrieving version from pom"
+          version=$(grep -m1 '<version>.*</version>' pom.xml | sed -n 's/.*<version>\(.*\)<\/version>.*/\1/p')
+          echo "Version: $version"
+          echo "content=$version" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get-version.outputs.content }}
+          release_name: Release ${{ steps.get-version.outputs.content }}
+          draft: false
+          prerelease: false
+
+      - name: Create IP Range Filter extensions artifact
+        id: create-druid-ip-range-filter-artifact
+        run: |
+          mvn -f pom.xml clean package -DskipTests
+          mv target/*.tar.gz ./druid-ip-range-filter.tar.gz
+
+      - name: Upload IP Range Filter extensions release asset
+        id: upload-druid-ip-range-filter-extension-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./druid-ip-range-filter.tar.gz
+          asset_name: druid-ip-range-filter.tar.gz
+          asset_content_type: application/gzip
