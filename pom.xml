@@ -24,7 +24,7 @@
 
   <groupId>bi.deep</groupId>
   <artifactId>druid-ip-range-filter</artifactId>
-  <version>29.0.0-SNAPSHOT</version>
+  <version>29.0.0</version>
   <name>Druid IP Range Filter Extension</name>
   <description>IP Range Filters extension for Apache Druid.</description>
 
