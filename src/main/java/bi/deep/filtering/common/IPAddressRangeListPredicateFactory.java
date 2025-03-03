@@ -18,36 +18,49 @@
  */
 package bi.deep.filtering.common;
 
+import javax.annotation.Nullable;
 import org.apache.druid.query.filter.DruidDoublePredicate;
 import org.apache.druid.query.filter.DruidFloatPredicate;
 import org.apache.druid.query.filter.DruidLongPredicate;
 import org.apache.druid.query.filter.DruidObjectPredicate;
 import org.apache.druid.query.filter.DruidPredicateFactory;
+import org.apache.druid.segment.column.TypeSignature;
+import org.apache.druid.segment.column.ValueType;
 
-public class IPAddressPredicateFactory implements DruidPredicateFactory {
-    private final IPAddressPredicate predicate;
+public class IPAddressRangeListPredicateFactory implements DruidPredicateFactory {
+    private final IPAddressRangeListPredicate predicate;
 
-    public IPAddressPredicateFactory(IPAddressPredicate predicate) {
+    public IPAddressRangeListPredicateFactory(IPAddressRangeListPredicate predicate) {
         this.predicate = predicate;
     }
 
     @Override
     public DruidObjectPredicate<String> makeStringPredicate() {
-        return predicate;
+        return null;
     }
 
     @Override
     public DruidLongPredicate makeLongPredicate() {
-        return null; // No Op
+        return null;
     }
 
     @Override
     public DruidFloatPredicate makeFloatPredicate() {
-        return null; // No op
+        return null;
     }
 
     @Override
     public DruidDoublePredicate makeDoublePredicate() {
-        return null; // No Op
+        return null;
+    }
+
+    @Override
+    public DruidObjectPredicate<Object[]> makeArrayPredicate(@Nullable TypeSignature<ValueType> inputType) {
+        return predicate;
+    }
+
+    @Override
+    public DruidObjectPredicate<Object> makeObjectPredicate() {
+        return null;
     }
 }

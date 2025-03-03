@@ -20,6 +20,7 @@ package bi.deep;
 
 import bi.deep.filtering.ip.range.FixedSetIPFilter;
 import bi.deep.filtering.ip.range.MultiRangeIPFilter;
+import bi.deep.filtering.ip.range.RangeMatchingIPFilter;
 import bi.deep.filtering.ip.range.SingleTypeIPRangeFilter;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -35,7 +36,8 @@ public class IPRangeFilterModule implements DruidModule {
         return Collections.singletonList(new SimpleModule(getClass().getSimpleName())
                 .registerSubtypes(FixedSetIPFilter.class)
                 .registerSubtypes(MultiRangeIPFilter.class)
-                .registerSubtypes(SingleTypeIPRangeFilter.class));
+                .registerSubtypes(SingleTypeIPRangeFilter.class)
+                .registerSubtypes(RangeMatchingIPFilter.class));
     }
 
     @Override

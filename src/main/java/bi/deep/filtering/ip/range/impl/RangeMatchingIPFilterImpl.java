@@ -18,79 +18,60 @@
  */
 package bi.deep.filtering.ip.range.impl;
 
-import bi.deep.filtering.common.IPAddressPredicate;
-import bi.deep.filtering.common.IPAddressPredicateFactory;
+import bi.deep.filtering.common.IPAddressRangeListPredicate;
+import bi.deep.filtering.common.IPAddressRangeListPredicateFactory;
 import bi.deep.filtering.common.IPBoundedRange;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import org.apache.druid.error.InvalidInput;
-import org.apache.druid.query.dimension.DefaultDimensionSpec;
 import org.apache.druid.query.filter.ColumnIndexSelector;
 import org.apache.druid.query.filter.Filter;
 import org.apache.druid.query.filter.ValueMatcher;
 import org.apache.druid.segment.ColumnSelectorFactory;
+import org.apache.druid.segment.filter.Filters;
 import org.apache.druid.segment.index.BitmapColumnIndex;
 
-public class SingleTypeIPRangeFilterImpl implements Filter {
+public class RangeMatchingIPFilterImpl implements Filter {
     private final String column;
-    private final IPBoundedRange boundedRange;
+    private final List<IPAddress> ips;
     private final boolean ignoreVersionMismatch;
 
-    public SingleTypeIPRangeFilterImpl(String column, IPBoundedRange range, boolean ignoreVersionMismatch) {
+    public RangeMatchingIPFilterImpl(String column, List<IPAddress> ips, boolean ignoreVersionMismatch) {
         if (column == null) {
-            throw InvalidInput.exception("Column cannot be null");
+            throw new IllegalArgumentException("Column cannot be null");
         }
-
         this.column = column;
+        this.ips = ips;
         this.ignoreVersionMismatch = ignoreVersionMismatch;
-        this.boundedRange = range;
     }
 
     @Nullable
     @Override
-    public BitmapColumnIndex getBitmapColumnIndex(ColumnIndexSelector columnIndexSelector) {
+    public BitmapColumnIndex getBitmapColumnIndex(ColumnIndexSelector selector) {
         return null;
     }
 
     @Override
     public ValueMatcher makeMatcher(ColumnSelectorFactory factory) {
-        return factory.makeDimensionSelector(new DefaultDimensionSpec(column, column))
-                .makeValueMatcher(new IPAddressPredicateFactory(IPAddressPredicate.of(this::contains)));
+        return Filters.makeValueMatcher(
+                factory,
+                column,
+                new IPAddressRangeListPredicateFactory(IPAddressRangeListPredicate.of(this::anyMatch)));
     }
 
     @VisibleForTesting
-    public boolean contains(@NotNull final IPAddress ipAddress) {
-        return boundedRange.contains(ipAddress, ignoreVersionMismatch);
+    public boolean anyMatch(@NotNull final IPBoundedRange[] ranges) {
+        return ips.stream()
+                .anyMatch(i -> Arrays.stream(ranges).anyMatch(range -> range.contains(i, ignoreVersionMismatch)));
     }
 
     @Override
     public Set<String> getRequiredColumns() {
         return ImmutableSet.of(column);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof SingleTypeIPRangeFilterImpl)) {
-            return false;
-        }
-
-        final SingleTypeIPRangeFilterImpl that = (SingleTypeIPRangeFilterImpl) o;
-
-        return ignoreVersionMismatch == that.ignoreVersionMismatch
-                && Objects.equals(column, that.column)
-                && Objects.equals(boundedRange, that.boundedRange);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(column, boundedRange, ignoreVersionMismatch);
     }
 }
