@@ -18,21 +18,20 @@
  */
 package bi.deep.filtering.ip.range;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import bi.deep.filtering.ip.range.impl.FixedSetIPFilterImpl;
 import com.google.common.collect.Streams;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
-import org.apache.druid.query.filter.Filter;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.druid.query.filter.Filter;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class FixedSetIPFilterTest {
     private final IPAddress ipV4Address = new IPAddressString("39.181.2.192").getAddress();
@@ -56,12 +55,8 @@ class FixedSetIPFilterTest {
 
         final FixedSetIPFilterImpl filterImp = (FixedSetIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV4Address.increment(count + 1)));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
     }
@@ -79,9 +74,7 @@ class FixedSetIPFilterTest {
 
         final FixedSetIPFilterImpl filterImp = (FixedSetIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
         assertFalse(filterImp.contains(ipV4Address.increment(count + 1)));
     }
@@ -99,12 +92,8 @@ class FixedSetIPFilterTest {
 
         final FixedSetIPFilterImpl filterImp = (FixedSetIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
-        assertFalse(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
+        assertFalse(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV4Address.increment(count + 1)));
     }
 
@@ -121,9 +110,7 @@ class FixedSetIPFilterTest {
 
         final FixedSetIPFilterImpl filterImp = (FixedSetIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV4Address.increment(count + 1)));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
     }
@@ -141,12 +128,8 @@ class FixedSetIPFilterTest {
 
         final FixedSetIPFilterImpl filterImp = (FixedSetIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
-        assertFalse(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
+        assertFalse(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
     }
 }

@@ -114,6 +114,32 @@ access control or compliance checks.
 * `dimension`: Specifies the dimension (column) holding the IP address to be filtered.
 * `ranges`: Defines the IP ranges set which can contain both IPv4 and IPv6.
 
+### 4. RangeMatchingIpFilter
+
+**Description:**
+`RangeMatchingIpFilter` enables filtering based on a list of IP addresses by matching them against predefined IP ranges in the dataset.
+This filter is useful when retrieving rows where the stored IP ranges contain the provided IPs.
+
+**Usage:**
+This filter is useful in network security and data analysis, where identifying records associated with specific IPs is essential.
+
+**Example:**
+
+```json
+{
+  "type": "ip_range_match",
+  "dimension": "range",
+  "values":  ["192.168.1.50", "8.8.8.9"],
+  "ignoreVersionMismatch": false
+}
+```
+
+#### Parameter Descriptions
+* `type`: should be `ip_range_match` as type.
+* `dimension`: Specifies the dimension (column) containing the stored IP ranges.
+* `values`: List of IP addresses to match against the stored ranges. Can include both IPv4 and IPv6.
+* `ignoreVersionMismatch`: When set to true, addresses that don’t match the defined IP type (IPv4 vs. IPv6) will be
+  ignored (default: false).
 ---
 
 ## How to Use These Filters

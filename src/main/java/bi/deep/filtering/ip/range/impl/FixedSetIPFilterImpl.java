@@ -23,6 +23,11 @@ import bi.deep.filtering.common.IPAddressPredicateFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.druid.error.InvalidInput;
 import org.apache.druid.query.dimension.DefaultDimensionSpec;
@@ -31,12 +36,6 @@ import org.apache.druid.query.filter.Filter;
 import org.apache.druid.query.filter.ValueMatcher;
 import org.apache.druid.segment.ColumnSelectorFactory;
 import org.apache.druid.segment.index.BitmapColumnIndex;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
 
 public class FixedSetIPFilterImpl implements Filter {
     private final String column;
@@ -64,7 +63,7 @@ public class FixedSetIPFilterImpl implements Filter {
     @Override
     public ValueMatcher makeMatcher(ColumnSelectorFactory factory) {
         return factory.makeDimensionSelector(new DefaultDimensionSpec(column, column))
-            .makeValueMatcher(new IPAddressPredicateFactory(IPAddressPredicate.of(this::contains)));
+                .makeValueMatcher(new IPAddressPredicateFactory(IPAddressPredicate.of(this::contains)));
     }
 
     @VisibleForTesting

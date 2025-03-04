@@ -18,18 +18,17 @@
  */
 package bi.deep.filtering.ip.range;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import bi.deep.filtering.ip.range.impl.MultiRangeIPFilterImpl;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
+import java.util.stream.LongStream;
 import org.apache.druid.query.filter.Filter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.stream.LongStream;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MultiRangeIPFilterTest {
     private final IPAddress ipV4Address = new IPAddressString("39.181.2.192").getAddress();
@@ -49,12 +48,8 @@ class MultiRangeIPFilterTest {
 
         final MultiRangeIPFilterImpl filterImp = (MultiRangeIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV4Address.increment(count + 1)));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
     }
@@ -69,12 +64,8 @@ class MultiRangeIPFilterTest {
 
         final MultiRangeIPFilterImpl filterImp = (MultiRangeIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
         assertTrue(filterImp.contains(ipV6Address.increment(count + 1)));
         assertFalse(filterImp.contains(ipV4Address.increment(count + 1)));
     }
@@ -89,12 +80,8 @@ class MultiRangeIPFilterTest {
 
         final MultiRangeIPFilterImpl filterImp = (MultiRangeIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
-        assertFalse(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
+        assertFalse(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV4Address.increment(count + 1)));
     }
 
@@ -108,12 +95,8 @@ class MultiRangeIPFilterTest {
 
         final MultiRangeIPFilterImpl filterImp = (MultiRangeIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
         assertTrue(filterImp.contains(ipV4Address.increment(count + 1)));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
     }
@@ -128,12 +111,8 @@ class MultiRangeIPFilterTest {
 
         final MultiRangeIPFilterImpl filterImp = (MultiRangeIPFilterImpl) filter;
 
-        assertTrue(LongStream.range(0, count)
-                .mapToObj(ipV6Address::increment)
-                .allMatch(filterImp::contains));
-        assertFalse(LongStream.range(0, count)
-                .mapToObj(ipV4Address::increment)
-                .allMatch(filterImp::contains));
+        assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
+        assertFalse(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
     }
 }
