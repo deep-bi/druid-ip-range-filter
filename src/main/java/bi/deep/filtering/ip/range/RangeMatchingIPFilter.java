@@ -122,6 +122,9 @@ public class RangeMatchingIPFilter extends AbstractOptimizableDimFilter implemen
     }
 
     private List<IPAddress> mapStringsToIps(final List<String> ips) {
-        return ips.stream().map(ip -> new IPAddressString(ip).getAddress()).collect(Collectors.toList());
+        return ips.stream()
+                .map(ip -> new IPAddressString(ip).getAddress())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }
