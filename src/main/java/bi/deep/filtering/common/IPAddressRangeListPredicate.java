@@ -42,10 +42,10 @@ public class IPAddressRangeListPredicate implements DruidObjectPredicate<Object[
             return DruidPredicateMatch.UNKNOWN;
         }
         String[] stringValues = Arrays.copyOf(value, value.length, String[].class);
-        return DruidPredicateMatch.of(predicate.test(mapToIPAddresses(stringValues)));
+        return DruidPredicateMatch.of(predicate.test(mapToIPRanges(stringValues)));
     }
 
-    private IPBoundedRange[] mapToIPAddresses(String[] values) {
+    private IPBoundedRange[] mapToIPRanges(String[] values) {
         return Arrays.stream(values)
                 .map(ipRange -> {
                     String[] parts = ipRange.split("-");
