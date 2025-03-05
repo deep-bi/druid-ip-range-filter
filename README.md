@@ -11,6 +11,7 @@ This repository includes three custom filters designed to enhance IP address fil
 1. **SingleTypeIPRangeFilter (`type = ip_single_range`)**
 2. **MultiRangeIPFilter (`type = ip_multi_range`)**
 3. **FixedSetIPFilter (`type = ip_fixed_range`)**
+4. **RangeMatchingIpFilter (`type = ip_range_match`)**
 
 These filters enable users to filter records based on IP address ranges and fixed sets of IPs, supporting both IPv4 and IPv6 formats.
 
