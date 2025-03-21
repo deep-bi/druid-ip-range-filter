@@ -20,8 +20,8 @@ package bi.deep.filtering.ip.range;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bi.deep.filtering.common.IPBoundedRange;
 import bi.deep.filtering.ip.range.impl.RangeMatchingIPFilterImpl;
+import bi.deep.range.IPBoundedRange;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import java.util.Collections;
@@ -42,7 +42,7 @@ public class RangeMatchingIPFilterTest {
             boolean expectV6IncMatch) {
         final long diff = 10;
         final RangeMatchingIPFilter dimFilter = new RangeMatchingIPFilter(
-                "dimension", Collections.singletonList(ipAddress.toString()), ignoreVersionMismatch);
+                "dimension", Collections.singleton(ipAddress.toString()), ignoreVersionMismatch);
         final Filter filter = dimFilter.toFilter();
         Assertions.assertInstanceOf(RangeMatchingIPFilterImpl.class, filter);
         RangeMatchingIPFilterImpl filterImpl = (RangeMatchingIPFilterImpl) filter;

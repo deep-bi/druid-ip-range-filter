@@ -19,18 +19,15 @@
 package bi.deep.filtering.ip.range;
 
 import bi.deep.filtering.ip.range.impl.RangeMatchingIPFilterImpl;
+import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.RangeSet;
-import inet.ipaddr.IPAddress;
-import inet.ipaddr.IPAddressString;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.druid.query.cache.CacheKeyBuilder;
 import org.apache.druid.query.filter.AbstractOptimizableDimFilter;
@@ -42,13 +39,13 @@ import org.apache.druid.query.filter.Filter;
 public class RangeMatchingIPFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x53;
     private final String dimension;
-    private final List<String> ips;
+    private final Set<String> ips;
     private final boolean ignoreVersionMismatch;
 
     @JsonCreator
     public RangeMatchingIPFilter(
             @JsonProperty("dimension") String dimension,
-            @JsonProperty("values") List<String> ips,
+            @JsonProperty("values") Set<String> ips,
             @JsonProperty("ignoreVersionMismatch") @Nullable Boolean ignoreVersionMismatch) {
         this.dimension = Preconditions.checkNotNull(dimension, "dimension");
         if (ips == null || ips.isEmpty()) {
@@ -64,7 +61,7 @@ public class RangeMatchingIPFilter extends AbstractOptimizableDimFilter implemen
     }
 
     @JsonProperty("values")
-    public List<String> getIps() {
+    public Set<String> getIps() {
         return ips;
     }
 
@@ -96,7 +93,7 @@ public class RangeMatchingIPFilter extends AbstractOptimizableDimFilter implemen
 
     @Override
     public Filter toFilter() {
-        return new RangeMatchingIPFilterImpl(dimension, mapStringsToIps(ips), ignoreVersionMismatch);
+        return new RangeMatchingIPFilterImpl(dimension, IPRangeUtil.mapStringsToIps(ips), ignoreVersionMismatch);
     }
 
     @Nullable
@@ -119,12 +116,5 @@ public class RangeMatchingIPFilter extends AbstractOptimizableDimFilter implemen
                 .appendByte(DimFilterUtils.STRING_SEPARATOR)
                 .appendBoolean(ignoreVersionMismatch)
                 .build();
-    }
-
-    private List<IPAddress> mapStringsToIps(final List<String> ips) {
-        return ips.stream()
-                .map(ip -> new IPAddressString(ip).getAddress())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
     }
 }

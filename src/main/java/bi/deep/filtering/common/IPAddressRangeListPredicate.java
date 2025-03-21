@@ -18,13 +18,14 @@
  */
 package bi.deep.filtering.common;
 
-import java.util.Arrays;
+import bi.deep.range.IPBoundedRange;
+import bi.deep.util.IPRangeUtil;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.apache.druid.query.filter.DruidObjectPredicate;
 import org.apache.druid.query.filter.DruidPredicateMatch;
 
-public class IPAddressRangeListPredicate implements DruidObjectPredicate<Object[]> {
+public class IPAddressRangeListPredicate implements DruidObjectPredicate<String> {
 
     private final Predicate<IPBoundedRange[]> predicate;
 
@@ -37,22 +38,10 @@ public class IPAddressRangeListPredicate implements DruidObjectPredicate<Object[
     }
 
     @Override
-    public DruidPredicateMatch apply(@Nullable Object[] value) {
-        if (value == null || value.length == 0 || !Arrays.stream(value).allMatch(String.class::isInstance)) {
+    public DruidPredicateMatch apply(@Nullable String value) {
+        if (value == null || value.isEmpty()) {
             return DruidPredicateMatch.UNKNOWN;
         }
-        String[] stringValues = Arrays.copyOf(value, value.length, String[].class);
-        return DruidPredicateMatch.of(predicate.test(mapToIPRanges(stringValues)));
-    }
-
-    private IPBoundedRange[] mapToIPRanges(String[] values) {
-        return Arrays.stream(values)
-                .map(ipRange -> {
-                    String[] parts = ipRange.split("-");
-                    String lower = parts[0].trim();
-                    String upper = parts.length > 1 ? parts[1].trim() : lower;
-                    return new IPBoundedRange(lower, upper, false, false);
-                })
-                .toArray(IPBoundedRange[]::new);
+        return DruidPredicateMatch.of(predicate.test(IPRangeUtil.extractIPRanges(value)));
     }
 }

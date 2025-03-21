@@ -152,6 +152,39 @@ Ensure that you specify the required parameters for the chosen filter type, such
 3.	Execute the Query:
 Run the query against your Druid cluster. The filter will limit the results based on the specified IP conditions.
 
+## Virtual Columns
+
+### IP Range Matching Column
+
+**Description:**
+This virtual column filters IP addresses based on whether they fall within any of the IP ranges in a specified column.
+Only the IPs explicitly listed in the values property that are also present in the delegate column's range will be included in the output.
+
+**Usage**
+This feature is useful in scenarios where you need to filter or validate IP addresses against predefined ranges without applying complex filtering logic at the application level.
+
+**Example:**
+```json
+{
+  "type": "ip-range-filtered",
+  "name": "output-name",
+  "delegate": "ips",
+  "values": ["10.162.59.18", "10.161.12.13"]
+}
+```
+#### Parameter Descriptions
+* `type`: must be `ip-range-filtered` as type.
+* `name`:  the name of the virtual column in the query results.
+* `delegate`: the name of the column containing IP ranges to match against.
+* `values`: A list of IP addresses to check. Only IPs that exist in both this list and within the delegate column's range will be included in the output.
+
+## How to Use These Virtual Column
+
+1. Include the Virtual Column in Your Query:
+   When crafting a Druid query, include in the `virtualColumns` section of your query JSON.
+2. Execute the Query:
+   Run the query against your Druid cluster. The filter will limit the results based on the specified IP conditions.
+
 ---
 
 ### Build

@@ -21,6 +21,7 @@ package bi.deep.filtering.common;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bi.deep.range.IPBoundedRange;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import java.util.stream.LongStream;

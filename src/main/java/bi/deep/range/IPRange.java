@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.filtering.common;
+package bi.deep.range;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;

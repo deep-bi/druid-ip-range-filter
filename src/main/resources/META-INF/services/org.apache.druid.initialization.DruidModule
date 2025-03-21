@@ -1,1 +1,2 @@
-bi.deep.IPRangeFilterModule
+bi.deep.guice.IPRangeFilterModule
+bi.deep.guice.IPRangeExtractionFnModule

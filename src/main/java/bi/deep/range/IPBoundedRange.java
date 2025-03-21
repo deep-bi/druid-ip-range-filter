@@ -16,21 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.filtering.common;
+package bi.deep.range;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import inet.ipaddr.IPAddress;
+import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import org.apache.druid.error.InvalidInput;
 import org.apache.druid.java.util.common.IAE;
 
 public class IPBoundedRange {
-    private final String lower;
-    private final String upper;
     private final boolean lowerOpen;
     private final boolean upperOpen;
 
@@ -42,19 +41,26 @@ public class IPBoundedRange {
     public IPBoundedRange(
             @JsonProperty("lower") @Nullable String lower,
             @JsonProperty("upper") @Nullable String upper,
-            @JsonProperty("lowerOpen") @Nullable Boolean lowerOpen,
-            @JsonProperty("upperOpen") @Nullable Boolean upperOpen) {
+            @JsonProperty("lowerOpen") boolean lowerOpen,
+            @JsonProperty("upperOpen") boolean upperOpen) {
+        this(
+                lower != null ? new IPAddressString(lower).getAddress() : null,
+                upper != null ? new IPAddressString(upper).getAddress() : null,
+                lowerOpen,
+                upperOpen);
+    }
 
-        if (lower == null && upper == null) {
-            throw InvalidInput.exception("Invalid input, lower and upper cannot be null at the same time");
+    public IPBoundedRange(
+            @Nullable IPAddress lowerIPAddress,
+            @Nullable IPAddress upperIPAddress,
+            boolean lowerOpen,
+            boolean upperOpen) {
+
+        if (lowerIPAddress == null && upperIPAddress == null) {
+            throw new IAE("At least one of the valid lower or upper bounds must be provided");
         }
-
-        this.lower = lower;
-        this.upper = upper;
-        this.lowerIPAddress = lower != null ? new IPAddressString(lower).getAddress() : null;
-        this.upperIPAddress = upper != null ? new IPAddressString(upper).getAddress() : null;
-        this.lowerOpen = lowerOpen != null && lowerOpen;
-        this.upperOpen = upperOpen != null && upperOpen;
+        this.lowerIPAddress = lowerIPAddress;
+        this.upperIPAddress = upperIPAddress;
 
         if (this.lowerIPAddress != null
                 && this.upperIPAddress != null
@@ -62,18 +68,24 @@ public class IPBoundedRange {
             throw new IAE("Both lower and upper bounds must be of the same IP type (IPv4 or IPv6)");
         }
 
+        this.lowerOpen = lowerOpen;
+        this.upperOpen = upperOpen;
         this.ipVersion =
                 this.lowerIPAddress != null ? this.lowerIPAddress.getIPVersion() : this.upperIPAddress.getIPVersion();
     }
 
-    @JsonProperty
-    public String getLower() {
-        return lower;
+    public IPBoundedRange(IPAddressSeqRange range, boolean lowerOpen, boolean upperOpen) {
+        this(range.getLower(), range.getUpper(), lowerOpen, upperOpen);
     }
 
-    @JsonProperty
+    @JsonProperty("lower")
+    public String getLower() {
+        return lowerIPAddress.toCanonicalString();
+    }
+
+    @JsonProperty("upper")
     public String getUpper() {
-        return upper;
+        return upperIPAddress.toCanonicalString();
     }
 
     @JsonProperty
@@ -113,6 +125,11 @@ public class IPBoundedRange {
                 : matchLowerBound(ipAddress) && matchUpperBound(ipAddress);
     }
 
+    @VisibleForTesting
+    public boolean containsAnyIP(List<IPAddress> ipAddress, boolean ignoreVersionMismatch) {
+        return ipAddress.stream().anyMatch(address -> contains(address, ignoreVersionMismatch));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -124,12 +141,12 @@ public class IPBoundedRange {
         final IPBoundedRange range = (IPBoundedRange) o;
         return lowerOpen == range.lowerOpen
                 && upperOpen == range.upperOpen
-                && Objects.equals(lower, range.lower)
-                && Objects.equals(upper, range.upper);
+                && Objects.equals(lowerIPAddress, range.lowerIPAddress)
+                && Objects.equals(upperIPAddress, range.upperIPAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lower, upper, lowerOpen, upperOpen);
+        return Objects.hash(lowerIPAddress, upperIPAddress, lowerOpen, upperOpen);
     }
 }

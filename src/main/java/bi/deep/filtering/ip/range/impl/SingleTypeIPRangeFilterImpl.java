@@ -20,7 +20,7 @@ package bi.deep.filtering.ip.range.impl;
 
 import bi.deep.filtering.common.IPAddressPredicate;
 import bi.deep.filtering.common.IPAddressPredicateFactory;
-import bi.deep.filtering.common.IPBoundedRange;
+import bi.deep.range.IPBoundedRange;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
