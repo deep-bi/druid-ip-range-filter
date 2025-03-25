@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep;
+package bi.deep.guice;
 
 import bi.deep.filtering.ip.range.FixedSetIPFilter;
 import bi.deep.filtering.ip.range.MultiRangeIPFilter;

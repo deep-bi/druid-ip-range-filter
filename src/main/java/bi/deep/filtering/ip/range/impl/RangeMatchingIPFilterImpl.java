@@ -20,11 +20,11 @@ package bi.deep.filtering.ip.range.impl;
 
 import bi.deep.filtering.common.IPAddressRangeListPredicate;
 import bi.deep.filtering.common.IPAddressRangeListPredicateFactory;
-import bi.deep.filtering.common.IPBoundedRange;
+import bi.deep.range.IPBoundedRange;
+import bi.deep.util.IPRangeUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -66,8 +66,7 @@ public class RangeMatchingIPFilterImpl implements Filter {
 
     @VisibleForTesting
     public boolean anyMatch(@NotNull final IPBoundedRange[] ranges) {
-        return ips.stream()
-                .anyMatch(i -> Arrays.stream(ranges).anyMatch(range -> range.contains(i, ignoreVersionMismatch)));
+        return IPRangeUtil.containsAnyIP(ranges, ips, ignoreVersionMismatch);
     }
 
     @Override

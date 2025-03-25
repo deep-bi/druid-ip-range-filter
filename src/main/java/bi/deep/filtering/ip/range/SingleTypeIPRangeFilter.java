@@ -18,8 +18,8 @@
  */
 package bi.deep.filtering.ip.range;
 
-import bi.deep.filtering.common.IPBoundedRange;
 import bi.deep.filtering.ip.range.impl.SingleTypeIPRangeFilterImpl;
+import bi.deep.range.IPBoundedRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;

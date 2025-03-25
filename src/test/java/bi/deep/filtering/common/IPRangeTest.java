@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bi.deep.range.IPRange;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import java.util.stream.LongStream;

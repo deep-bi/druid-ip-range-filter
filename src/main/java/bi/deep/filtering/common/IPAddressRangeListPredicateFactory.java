@@ -18,6 +18,7 @@
  */
 package bi.deep.filtering.common;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.druid.query.filter.DruidDoublePredicate;
 import org.apache.druid.query.filter.DruidFloatPredicate;
@@ -36,7 +37,7 @@ public class IPAddressRangeListPredicateFactory implements DruidPredicateFactory
 
     @Override
     public DruidObjectPredicate<String> makeStringPredicate() {
-        return null;
+        return predicate;
     }
 
     @Override
@@ -56,7 +57,7 @@ public class IPAddressRangeListPredicateFactory implements DruidPredicateFactory
 
     @Override
     public DruidObjectPredicate<Object[]> makeArrayPredicate(@Nullable TypeSignature<ValueType> inputType) {
-        return predicate;
+        return o -> predicate.apply(Objects.toString(inputType, null));
     }
 
     @Override
