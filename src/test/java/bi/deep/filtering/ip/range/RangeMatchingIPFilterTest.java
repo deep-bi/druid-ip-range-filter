@@ -20,6 +20,7 @@ package bi.deep.filtering.ip.range;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bi.deep.entity.IPSetContents;
 import bi.deep.filtering.ip.range.impl.RangeMatchingIPFilterImpl;
 import bi.deep.range.IPBoundedRange;
 import inet.ipaddr.IPAddress;
@@ -49,25 +50,25 @@ public class RangeMatchingIPFilterTest {
 
         IPBoundedRange rangeV4 = new IPBoundedRange(
                 ipV4Address.toString(), ipV4Address.increment(diff).toString(), false, false);
-        assertEquals(expectV4Match, filterImpl.anyMatch(new IPBoundedRange[] {rangeV4}));
+        assertEquals(expectV4Match, filterImpl.anyMatch(new IPSetContents(null, Collections.singletonList(rangeV4))));
 
         IPBoundedRange rangeV6 = new IPBoundedRange(
                 ipV6Address.toString(), ipV6Address.increment(diff).toString(), false, false);
-        assertEquals(expectV6Match, filterImpl.anyMatch(new IPBoundedRange[] {rangeV6}));
+        assertEquals(expectV6Match, filterImpl.anyMatch(new IPSetContents(null, Collections.singletonList(rangeV6))));
 
         IPBoundedRange rangeV4Inc = new IPBoundedRange(
                 ipV4Address.increment(diff).toString(),
                 ipV4Address.increment(diff * 2).toString(),
                 false,
                 false);
-        assertEquals(expectV4IncMatch, filterImpl.anyMatch(new IPBoundedRange[] {rangeV4Inc}));
+        assertEquals(expectV4IncMatch, filterImpl.anyMatch(new IPSetContents(null, Collections.singletonList(rangeV4Inc))));
 
         IPBoundedRange rangeV6Inc = new IPBoundedRange(
                 ipV6Address.increment(diff).toString(),
                 ipV6Address.increment(diff * 2).toString(),
                 false,
                 false);
-        assertEquals(expectV6IncMatch, filterImpl.anyMatch(new IPBoundedRange[] {rangeV6Inc}));
+        assertEquals(expectV6IncMatch, filterImpl.anyMatch(new IPSetContents(null, Collections.singletonList(rangeV6Inc))));
     }
 
     @Test

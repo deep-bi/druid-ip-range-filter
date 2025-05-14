@@ -20,7 +20,7 @@ package bi.deep.filtering.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import bi.deep.range.IPBoundedRange;
+import bi.deep.entity.IPSetContents;
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,8 +44,8 @@ class IPRangeUtilTest {
     @Test
     void testExtractIPRanges() {
         String input = "192.168.1.1-192.168.1.100,10.0.0.0/24";
-        IPBoundedRange[] ranges = IPRangeUtil.extractIPRanges(input);
-        assertEquals(2, ranges.length);
+        IPSetContents contents = IPRangeUtil.extractIPSetContents(input);
+        assertEquals(2, contents.getRanges().size());
     }
 
     @Test
@@ -81,7 +81,7 @@ class IPRangeUtilTest {
     @Test
     void testContainsAnyIP() {
         String input = "192.168.1.1-192.168.1.100";
-        IPBoundedRange[] ranges = IPRangeUtil.extractIPRanges(input);
+        IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50"));
         assertTrue(IPRangeUtil.containsAnyIP(ranges, ips, false));
     }
@@ -89,7 +89,7 @@ class IPRangeUtilTest {
     @Test
     void testContainsAnyIP_NoMatch() {
         String input = "192.168.1.1-192.168.1.100";
-        IPBoundedRange[] ranges = IPRangeUtil.extractIPRanges(input);
+        IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.0.0.1"));
         assertFalse(IPRangeUtil.containsAnyIP(ranges, ips, false));
     }
