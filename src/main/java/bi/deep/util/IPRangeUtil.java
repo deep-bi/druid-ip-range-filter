@@ -131,16 +131,4 @@ public class IPRangeUtil
               .filter(Objects::nonNull)
               .collect(Collectors.toList());
   }
-
-  public static boolean containsAnyIP(IPSetContents contents, List<IPAddress> candidates, boolean ignoreVersionMismatch)
-  {
-    for (IPAddress ip : candidates) {
-      if (contents.getIpAddresses() != null && !contents.getIpAddresses().isEmpty() && contents.getIpAddresses()
-                                                                                               .contains(ip)) {
-        return true;
-      }
-    }
-    return contents.getRanges() != null && contents.getRanges().stream()
-                                                   .anyMatch(r -> r.containsAnyIP(candidates, ignoreVersionMismatch));
-  }
 }

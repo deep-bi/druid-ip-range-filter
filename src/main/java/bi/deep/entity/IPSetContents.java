@@ -23,14 +23,20 @@ public class IPSetContents
   }
 
   @Nullable
-  public List<IPAddress> getIpAddresses()
-  {
-    return ipAddresses;
-  }
-
-  @Nullable
   public List<IPBoundedRange> getRanges()
   {
     return ranges;
+  }
+
+  public boolean containsAnyIP(List<IPAddress> candidates, boolean ignoreVersionMismatch)
+  {
+    for (IPAddress ip : candidates) {
+      if (ipAddresses != null && !ipAddresses.isEmpty() && ipAddresses
+              .contains(ip)) {
+        return true;
+      }
+    }
+    return ranges != null && ranges.stream()
+            .anyMatch(r -> r.containsAnyIP(candidates, ignoreVersionMismatch));
   }
 }

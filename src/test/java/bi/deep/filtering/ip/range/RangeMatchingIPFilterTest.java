@@ -18,17 +18,21 @@
  */
 package bi.deep.filtering.ip.range;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import bi.deep.entity.IPSetContents;
 import bi.deep.filtering.ip.range.impl.RangeMatchingIPFilterImpl;
 import bi.deep.range.IPBoundedRange;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
+
 import java.util.Collections;
+
 import org.apache.druid.query.filter.Filter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RangeMatchingIPFilterTest {
     private final IPAddress ipV4Address = new IPAddressString("39.181.2.192").getAddress();
@@ -69,6 +73,53 @@ public class RangeMatchingIPFilterTest {
                 false,
                 false);
         assertEquals(expectV6IncMatch, filterImpl.anyMatch(new IPSetContents(null, Collections.singletonList(rangeV6Inc))));
+    }
+
+    private void doIpListTest(
+            IPAddress targetIp,
+            IPAddress testIp,
+            boolean ignoreVersionMismatch,
+            boolean expectMatch
+    ) {
+        RangeMatchingIPFilter dimFilter = new RangeMatchingIPFilter(
+                "dimension",
+                Collections.singleton(targetIp.toString()),
+                ignoreVersionMismatch
+        );
+        RangeMatchingIPFilterImpl impl = (RangeMatchingIPFilterImpl) dimFilter.toFilter();
+        IPSetContents contents = new IPSetContents(
+                Collections.singletonList(testIp),
+                Collections.emptyList()
+        );
+
+        if (expectMatch) {
+            assertTrue(
+                    impl.anyMatch(contents),
+                    () -> String.format("Expected match for %s vs %s (ignoreMismatch=%b)",
+                            testIp, targetIp, ignoreVersionMismatch)
+            );
+        } else {
+            assertFalse(
+                    impl.anyMatch(contents),
+                    () -> String.format("Expected no match for %s vs %s (ignoreMismatch=%b)",
+                            testIp, targetIp, ignoreVersionMismatch)
+            );
+        }
+    }
+
+    @Test
+    public void testIpListMatchingScenarios() {
+        doIpListTest(ipV4Address, ipV4Address, true, true);
+        doIpListTest(ipV4Address, ipV4Address.increment(1), true, false);
+
+        doIpListTest(ipV4Address, ipV4Address, false, true);
+        doIpListTest(ipV4Address, ipV6Address, false, false);
+
+        doIpListTest(ipV6Address, ipV6Address, true, true);
+        doIpListTest(ipV6Address, ipV6Address.increment(1), true, false);
+
+        doIpListTest(ipV6Address, ipV6Address, false, true);
+        doIpListTest(ipV6Address, ipV4Address, false, false);
     }
 
     @Test

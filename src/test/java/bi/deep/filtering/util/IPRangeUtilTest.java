@@ -83,7 +83,7 @@ class IPRangeUtilTest {
         String input = "192.168.1.1-192.168.1.100";
         IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50"));
-        assertTrue(IPRangeUtil.containsAnyIP(ranges, ips, false));
+        assertTrue(ranges.containsAnyIP(ips, false));
     }
 
     @Test
@@ -91,6 +91,38 @@ class IPRangeUtilTest {
         String input = "192.168.1.1-192.168.1.100";
         IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.0.0.1"));
-        assertFalse(IPRangeUtil.containsAnyIP(ranges, ips, false));
+        assertFalse(ranges.containsAnyIP(ips, false));
+    }
+
+    @Test
+    void testContainsSingleIp_Match() {
+        String input = "192.168.1.1";
+        IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.1"));
+        assertTrue(ranges.containsAnyIP(ips, false));
+    }
+
+    @Test
+    void testContainsSingleIp_NoMatch() {
+        String input = "192.168.1.1";
+        IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.2"));
+        assertFalse(ranges.containsAnyIP(ips, false));
+    }
+
+    @Test
+    void testContainsMixedWithRange_Match() {
+        String input = "192.168.1.1, 192.168.1.3-192.168.1.100";
+        IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.1"));
+        assertTrue(ranges.containsAnyIP(ips, false));
+    }
+
+    @Test
+    void testContainsMixedWithRange_NoMatch() {
+        String input = "192.168.1.1, 192.168.1.3-192.168.1.100";
+        IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.2"));
+        assertFalse(ranges.containsAnyIP(ips, false));
     }
 }
