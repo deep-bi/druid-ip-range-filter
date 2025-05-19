@@ -18,10 +18,9 @@
  */
 package bi.deep.filtering.ip.range.impl;
 
+import bi.deep.entity.IPSetContents;
 import bi.deep.filtering.common.IPAddressRangeListPredicate;
 import bi.deep.filtering.common.IPAddressRangeListPredicateFactory;
-import bi.deep.range.IPBoundedRange;
-import bi.deep.util.IPRangeUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
@@ -65,8 +64,8 @@ public class RangeMatchingIPFilterImpl implements Filter {
     }
 
     @VisibleForTesting
-    public boolean anyMatch(@NotNull final IPBoundedRange[] ranges) {
-        return IPRangeUtil.containsAnyIP(ranges, ips, ignoreVersionMismatch);
+    public boolean anyMatch(@NotNull final IPSetContents ranges) {
+        return ranges.containsAnyIP(ips, ignoreVersionMismatch);
     }
 
     @Override

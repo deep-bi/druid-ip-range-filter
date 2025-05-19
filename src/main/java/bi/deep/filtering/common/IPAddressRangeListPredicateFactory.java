@@ -18,13 +18,16 @@
  */
 package bi.deep.filtering.common;
 
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
 import org.apache.druid.query.filter.DruidDoublePredicate;
 import org.apache.druid.query.filter.DruidFloatPredicate;
 import org.apache.druid.query.filter.DruidLongPredicate;
 import org.apache.druid.query.filter.DruidObjectPredicate;
 import org.apache.druid.query.filter.DruidPredicateFactory;
+import org.apache.druid.query.filter.DruidPredicateMatch;
 import org.apache.druid.segment.column.TypeSignature;
 import org.apache.druid.segment.column.ValueType;
 
@@ -57,7 +60,16 @@ public class IPAddressRangeListPredicateFactory implements DruidPredicateFactory
 
     @Override
     public DruidObjectPredicate<Object[]> makeArrayPredicate(@Nullable TypeSignature<ValueType> inputType) {
-        return o -> predicate.apply(Objects.toString(inputType, null));
+        // might be slow, could just throw an unsupported exception
+        return arr -> {
+            if (arr == null) {
+                return DruidPredicateMatch.FALSE;
+            }
+            String mvs = Arrays.stream(arr)
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+            return predicate.apply(mvs);
+        };
     }
 
     @Override

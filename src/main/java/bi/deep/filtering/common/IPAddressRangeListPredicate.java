@@ -18,7 +18,7 @@
  */
 package bi.deep.filtering.common;
 
-import bi.deep.range.IPBoundedRange;
+import bi.deep.entity.IPSetContents;
 import bi.deep.util.IPRangeUtil;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -27,13 +27,13 @@ import org.apache.druid.query.filter.DruidPredicateMatch;
 
 public class IPAddressRangeListPredicate implements DruidObjectPredicate<String> {
 
-    private final Predicate<IPBoundedRange[]> predicate;
+    private final Predicate<IPSetContents> predicate;
 
-    public IPAddressRangeListPredicate(Predicate<IPBoundedRange[]> predicate) {
+    public IPAddressRangeListPredicate(Predicate<IPSetContents> predicate) {
         this.predicate = predicate;
     }
 
-    public static IPAddressRangeListPredicate of(Predicate<IPBoundedRange[]> predicate) {
+    public static IPAddressRangeListPredicate of(Predicate<IPSetContents> predicate) {
         return new IPAddressRangeListPredicate(predicate);
     }
 
@@ -42,6 +42,6 @@ public class IPAddressRangeListPredicate implements DruidObjectPredicate<String>
         if (value == null || value.isEmpty()) {
             return DruidPredicateMatch.UNKNOWN;
         }
-        return DruidPredicateMatch.of(predicate.test(IPRangeUtil.extractIPRanges(value)));
+        return DruidPredicateMatch.of(predicate.test(IPRangeUtil.extractIPSetContents(value)));
     }
 }
