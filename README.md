@@ -118,7 +118,8 @@ access control or compliance checks.
 ### 4. RangeMatchingIpFilter
 
 **Description:**
-`RangeMatchingIpFilter` enables filtering based on a list of IP addresses by matching them against predefined IP ranges in the dataset.
+`RangeMatchingIpFilter` enables filtering based on a provided list of IP addresses by matching them against the IP addresses (e.g., `192.168.1.10`), explicit ranges (e.g., `192.168.1.10-192.168.1.20`) or CIDR blocks (e.g., `192.168.1.0/24`) in the dataset. The explicit range should be expressed using either a hyphen (e.g., `192.168.1.10-192.168.1.20`) to separate the two IP addresses. But dash-separated (e.g., `192.168.1.10–192.168.1.20`) and slash-separated (e.g., `192.168.1.10/192.168.1.20`) will also be accepted and matched accordingly.
+
 This filter is useful when retrieving rows where the stored IP ranges contain the provided IPs.
 
 **Usage:**
