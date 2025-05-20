@@ -76,8 +76,7 @@ public class IPRangeFilteredVirtualColumn implements VirtualColumn {
 
     @Override
     public DimensionSelector makeDimensionSelector(DimensionSpec dimensionSpec, ColumnSelectorFactory factory) {
-        return IPRangeFilteredDimensionSpec.makeDimensionSelector(
-                ips, factory.makeDimensionSelector(delegate));
+        return IPRangeFilteredDimensionSpec.makeDimensionSelector(ips, factory.makeDimensionSelector(delegate));
     }
 
     @Override
