@@ -26,71 +26,100 @@ import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
 
 public class IPRangeUtil {
-    private static final String DASH_REGEX = "^([0-9A-Fa-f:.]+)[–-]([0-9A-Fa-f:.]+)$";
-    private static final String SLASH_REGEX = "^([0-9A-Fa-f:.]+)/([0-9A-Fa-f:.]+)$";
-    private static final String CIDR_REGEX = "^[0-9A-Fa-f:.]+/\\d+$";
-    private static final String IP_REGEX = "^[0-9A-Fa-f:.]+$";
+    private static final Pattern DASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)[–-]([0-9A-Fa-f:.]+)$");
+    private static final Pattern SLASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)/([0-9A-Fa-f:.]+)$");
+    private static final Pattern CIDR_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+/\\d+$");
+    private static final Pattern IP_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+$");
+    private static final int PARALLEL_LIMIT = 200;
 
-    public static IPSetContents extractIPSetContents(String input) {
-        List<IPAddress> ips = new ArrayList<>();
-        List<IPBoundedRange> ranges = new ArrayList<>();
+    private static Object parseToken(String data, Map<String, Object> cache) {
+        return cache.computeIfAbsent(data, token -> {
+            Matcher dashMatcher = DASH_REGEX.matcher(token);
 
-        for (String token : input.split("\\s*,\\s*")) {
-            if (token.isEmpty()) {
-                continue;
-            }
-
-            if (token.matches(DASH_REGEX)) {
-                Matcher m = Pattern.compile(DASH_REGEX).matcher(token);
-                if (m.matches()) {
-                    String lo = m.group(1);
-                    String hi = m.group(2);
-                    IPAddress la = new IPAddressString(lo).getAddress();
-                    IPAddress ha = new IPAddressString(hi).getAddress();
-                    if (la != null && ha != null && la.getIPVersion() == ha.getIPVersion()) {
-                        ranges.add(new IPBoundedRange(lo, hi, false, false));
-                    }
+            if (dashMatcher.matches()) {
+                String lo = dashMatcher.group(1);
+                String hi = dashMatcher.group(2);
+                IPAddress la = new IPAddressString(lo).getAddress();
+                IPAddress ha = new IPAddressString(hi).getAddress();
+                if (la != null && ha != null && la.getIPVersion() == ha.getIPVersion()) {
+                    return new IPBoundedRange(lo, hi, false, false);
                 }
-                continue;
+
+                return null;
             }
 
-            if (token.matches(SLASH_REGEX) && !token.matches(CIDR_REGEX)) {
-                Matcher m = Pattern.compile(SLASH_REGEX).matcher(token);
-                if (m.matches()) {
-                    String lo = m.group(1);
-                    String hi = m.group(2);
-                    ranges.add(new IPBoundedRange(lo, hi, false, false));
-                }
-                continue;
+            Matcher slashMatcher = SLASH_REGEX.matcher(token);
+            Matcher cidrMatcher = CIDR_REGEX.matcher(token);
+            boolean isCidrSpecificFormat = cidrMatcher.matches();
+
+            if (slashMatcher.matches() && !isCidrSpecificFormat) {
+                String lo = slashMatcher.group(1);
+                String hi = slashMatcher.group(2);
+
+                return new IPBoundedRange(lo, hi, false, false);
             }
 
-            if (token.matches(CIDR_REGEX)) {
+            if (isCidrSpecificFormat) {
                 IPAddressSeqRange seq = new IPAddressString(token).getAddress().toSequentialRange();
                 if (seq != null) {
-                    ranges.add(new IPBoundedRange(seq, false, false));
+                    return new IPBoundedRange(seq, false, false);
                 }
-                continue;
+                return null;
             }
 
-            if (token.matches(IP_REGEX)) {
-                IPAddress addr = new IPAddressString(token).getAddress();
-                if (addr != null) {
-                    ips.add(addr);
-                }
+            Matcher ipMatcher = IP_REGEX.matcher(token);
+
+            if (ipMatcher.matches()) {
+                return new IPAddressString(token).getAddress();
             }
+
+            return null;
+        });
+    }
+
+    public static IPSetContents extractIPSetContents(String input) {
+        if (StringUtils.isBlank(input)) {
+            return new IPSetContents(Collections.emptyList(), Collections.emptyList());
         }
+
+        final Map<String, Object> cache = new ConcurrentHashMap<>();
+        final String[] tokens = input.split("\\s*,\\s*");
+        Stream<String> tokenStream = Arrays.stream(tokens).filter(StringUtils::isNotBlank);
+
+        if (tokens.length > PARALLEL_LIMIT) {
+            tokenStream = tokenStream.parallel();
+        }
+
+        final List<Object> parsedResults = tokenStream
+                .map(token -> parseToken(token, cache))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        final List<IPAddress> ips = new ArrayList<>();
+        final List<IPBoundedRange> ranges = new ArrayList<>();
+
+        parsedResults.forEach(result -> {
+            if (result instanceof IPAddress) {
+                ips.add((IPAddress) result);
+            } else if (result instanceof IPBoundedRange) {
+                ranges.add((IPBoundedRange) result);
+            }
+        });
 
         return new IPSetContents(ips, ranges);
     }
