@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
 
 public class IPRangeUtil {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern DASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)[–-]([0-9A-Fa-f:.]+)$");
     private static final Pattern SLASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)/([0-9A-Fa-f:.]+)$");
     private static final Pattern CIDR_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+/\\d+$");
@@ -139,7 +140,7 @@ public class IPRangeUtil {
             return matchingIps.get(0);
         } else {
             try {
-                return new ObjectMapper().writeValueAsString(matchingIps);
+                return OBJECT_MAPPER.writeValueAsString(matchingIps);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error converting to JSON", e);
             }
