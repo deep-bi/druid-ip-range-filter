@@ -31,13 +31,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
 
@@ -126,24 +126,32 @@ public class IPRangeUtil {
     }
 
     public static String getMatchingIPs(String input, Set<String> ips) {
+        if (StringUtils.isBlank(input) || CollectionUtils.isEmpty(ips)) {
+            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
+        }
+
+        List<IPBoundedRange> ranges = extractIPSetContents(input).getRanges();
+        if (CollectionUtils.isEmpty(ranges)) {
+            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
+        }
+
+        // Filter matching IPs
         List<String> matchingIps = mapStringsToIps(ips).stream()
-                .filter(ip ->
-                        Optional.ofNullable(extractIPSetContents(input).getRanges())
-                                .orElse(Collections.emptyList())
-                                .stream()
-                                .anyMatch(r -> r.contains(ip, false)))
+                .filter(ip -> ranges.stream().anyMatch(r -> r.contains(ip, false)))
                 .map(IPAddress::toString)
                 .collect(Collectors.toList());
+
         if (matchingIps.isEmpty()) {
             return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
-        } else if (matchingIps.size() == 1) {
+        }
+        if (matchingIps.size() == 1) {
             return matchingIps.get(0);
-        } else {
-            try {
-                return OBJECT_MAPPER.writeValueAsString(matchingIps);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Error converting to JSON", e);
-            }
+        }
+
+        try {
+            return OBJECT_MAPPER.writeValueAsString(matchingIps);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error converting to JSON", e);
         }
     }
 
