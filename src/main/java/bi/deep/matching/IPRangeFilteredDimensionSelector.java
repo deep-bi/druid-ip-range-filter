@@ -37,7 +37,7 @@ import org.apache.druid.segment.data.IndexedInts;
 import org.apache.druid.segment.data.ZeroIndexedInts;
 
 public class IPRangeFilteredDimensionSelector extends AbstractDimensionSelector {
-
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger log = new Logger(IPRangeFilteredDimensionSelector.class);
 
     protected final DimensionSelector baseSelector;
@@ -69,7 +69,7 @@ public class IPRangeFilteredDimensionSelector extends AbstractDimensionSelector 
                 if (extractionResult.startsWith("[") && extractionResult.endsWith("]")) {
                     try {
                         List<String> array =
-                                new ObjectMapper().readValue(extractionResult, new TypeReference<List<String>>() {});
+                                OBJECT_MAPPER.readValue(extractionResult, new TypeReference<List<String>>() {});
                         return array.stream().anyMatch(x -> (includeUnknown && x == null) || Objects.equals(x, value));
                     } catch (IOException e) {
                         log.warn(e, "Failed to parse JSON array, returning false: %s", extractionResult);
@@ -101,7 +101,7 @@ public class IPRangeFilteredDimensionSelector extends AbstractDimensionSelector 
                 if (extractionResult.startsWith("[") && extractionResult.endsWith("]")) {
                     try {
                         List<String> elements =
-                                new ObjectMapper().readValue(extractionResult, new TypeReference<List<String>>() {});
+                                OBJECT_MAPPER.readValue(extractionResult, new TypeReference<List<String>>() {});
                         return elements.stream()
                                 .anyMatch(x -> predicate.apply(x).matches(includeUnknown));
                     } catch (IOException e) {

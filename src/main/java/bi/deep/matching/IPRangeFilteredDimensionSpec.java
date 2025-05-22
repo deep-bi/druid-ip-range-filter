@@ -49,10 +49,8 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
         this.ips = ips;
     }
 
-    public static DimensionSelector makeDimensionSelector(
-            Set<String> values, DimensionSelector valueSelector) {
-        return new IPRangeFilteredDimensionSelector(
-                valueSelector, new IPRangeFilteredExtractionFn(values));
+    public static DimensionSelector makeDimensionSelector(Set<String> values, DimensionSelector valueSelector) {
+        return new IPRangeFilteredDimensionSelector(valueSelector, new IPRangeFilteredExtractionFn(values));
     }
 
     @JsonProperty("delegate")
@@ -69,7 +67,6 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
     public String getDimension() {
         return delegate.getDimension();
     }
-
 
     @Override
     @JsonProperty("name")
