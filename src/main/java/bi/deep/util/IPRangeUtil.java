@@ -21,10 +21,13 @@ package bi.deep.util;
 import bi.deep.entity.IPSetContents;
 import bi.deep.range.IPBoundedRange;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
+import inet.ipaddr.format.IPAddressRange;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +43,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
+import org.apache.druid.java.util.common.IAE;
 
 public class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -48,6 +52,25 @@ public class IPRangeUtil {
     private static final Pattern CIDR_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+/\\d+$");
     private static final Pattern IP_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+$");
     private static final int PARALLEL_LIMIT = 200;
+
+    public static IPAddressRange fromString(String token) {
+        Matcher dashMatcher = DASH_REGEX.matcher(token);
+
+        if (dashMatcher.matches()) {
+            String lo = dashMatcher.group(1);
+            String hi = dashMatcher.group(2);
+            IPAddress la = new IPAddressString(lo).getAddress();
+            IPAddress ha = new IPAddressString(hi).getAddress();
+
+            if (la != null && ha != null && la.getIPVersion() == ha.getIPVersion()) {
+                return la.spanWithRange(ha);
+            }
+
+            return null;
+        }
+
+        return new IPAddressString(token).getAddress();
+    }
 
     private static Object parseToken(String data, Map<String, Object> cache) {
         return cache.computeIfAbsent(data, token -> {
@@ -153,6 +176,18 @@ public class IPRangeUtil {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error converting to JSON", e);
         }
+    }
+
+    public static List<String> convertToList(String json) {
+        if (json.startsWith("[") && json.endsWith("]")) {
+            try {
+                return OBJECT_MAPPER.readValue(json, new TypeReference<List<String>>() {});
+            } catch (IOException e) {
+                throw new IAE("Failed to parse JSON array", e);
+            }
+        }
+
+        return Collections.singletonList(json);
     }
 
     public static List<IPAddress> mapStringsToIps(final Set<String> ips) {

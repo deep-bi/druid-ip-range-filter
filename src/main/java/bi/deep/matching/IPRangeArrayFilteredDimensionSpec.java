@@ -29,15 +29,15 @@ import org.apache.druid.query.extraction.ExtractionFn;
 import org.apache.druid.segment.DimensionSelector;
 import org.apache.druid.segment.column.ColumnType;
 
-@JsonTypeName("ip-range-filtered-spec")
-public class IPRangeFilteredDimensionSpec implements DimensionSpec {
-    public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x6;
+@JsonTypeName("ip-range-array-filtered-spec")
+public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
+    public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x6F;
     private final String name;
     private final DimensionSpec delegate;
     private final Set<String> ips;
 
     @JsonCreator
-    public IPRangeFilteredDimensionSpec(
+    public IPRangeArrayFilteredDimensionSpec(
             @JsonProperty("name") String name,
             @JsonProperty("delegate") DimensionSpec delegate,
             @JsonProperty("values") Set<String> ips) {
@@ -47,10 +47,6 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
         this.name = Preconditions.checkNotNull(name, "name must be defined");
         this.delegate = Preconditions.checkNotNull(delegate, "delegate");
         this.ips = ips;
-    }
-
-    public static DimensionSelector makeDimensionSelector(Set<String> values, DimensionSelector valueSelector) {
-        return new IPRangeFilteredDimensionSelector(valueSelector, new IPRangeFilteredExtractionFn(values));
     }
 
     @JsonProperty("delegate")
@@ -81,7 +77,7 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
 
     @Override
     public ExtractionFn getExtractionFn() {
-        return new IPRangeFilteredExtractionFn(ips);
+        return null;
     }
 
     @Override
@@ -101,7 +97,7 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
 
     @Override
     public DimensionSpec withDimension(String newDimension) {
-        return new IPRangeFilteredDimensionSpec(name, delegate.withDimension(newDimension), ips);
+        return new IPRangeArrayFilteredDimensionSpec(name, delegate.withDimension(newDimension), ips);
     }
 
     @Override
