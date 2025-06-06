@@ -18,12 +18,15 @@
  */
 package bi.deep.matching;
 
+import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
+
 import bi.deep.entity.array.IPRangeArray;
 import inet.ipaddr.IPAddress;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
 import org.apache.druid.query.filter.DruidPredicateFactory;
 import org.apache.druid.query.filter.ValueMatcher;
@@ -36,12 +39,12 @@ import org.apache.druid.segment.data.ZeroIndexedInts;
 
 public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSelector {
     protected final ColumnValueSelector<IPRangeArray> columnSelector;
-    private final List<IPAddress> rangesToMatch;
+    private final SortedSet<IPAddress> rangesToMatch = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
 
     public IPRangeArrayFilteredDimensionSelector(
             ColumnValueSelector<IPRangeArray> columnSelector, List<IPAddress> rangesToMatch) {
         this.columnSelector = columnSelector;
-        this.rangesToMatch = rangesToMatch;
+        this.rangesToMatch.addAll(rangesToMatch);
     }
 
     @Override
@@ -69,7 +72,7 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
 
     @Nullable
     @Override
-    public String getObject() {
+    public IPRangeArray getObject() {
         IPRangeArray value = columnSelector.getObject();
 
         if (NullHandling.sqlCompatible() && value == null) {
@@ -77,16 +80,16 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
         }
 
         if (value == null) {
-            return StringUtils.EMPTY;
+            return IPRangeArray.EMPTY;
         }
 
-        return rangesToMatch.stream().anyMatch(value::match) ? value.toString() : StringUtils.EMPTY;
+        return value.match(rangesToMatch) ? value : IPRangeArray.EMPTY;
     }
 
     @Override
     @Nonnull
     public Class<?> classOfObject() {
-        return Object.class;
+        return IPRangeArray.class;
     }
 
     @Override
@@ -97,7 +100,7 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
     @Nullable
     @Override
     public String lookupName(int id) {
-        return getObject();
+        return null;
     }
 
     @Override

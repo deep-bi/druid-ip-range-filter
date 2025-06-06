@@ -18,11 +18,11 @@
  */
 package bi.deep.matching;
 
+import bi.deep.guice.IPAddressDimensionModule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.Preconditions;
-import java.util.Objects;
 import java.util.Set;
 import org.apache.druid.query.dimension.DimensionSpec;
 import org.apache.druid.query.extraction.ExtractionFn;
@@ -72,7 +72,7 @@ public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
 
     @Override
     public ColumnType getOutputType() {
-        return ColumnType.STRING;
+        return IPAddressDimensionModule.ARRAY_TYPE;
     }
 
     @Override
@@ -92,12 +92,12 @@ public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
 
     @Override
     public boolean preservesOrdering() {
-        return Objects.requireNonNull(getExtractionFn()).preservesOrdering();
+        return true;
     }
 
     @Override
     public DimensionSpec withDimension(String newDimension) {
-        return new IPRangeArrayFilteredDimensionSpec(name, delegate.withDimension(newDimension), ips);
+        return new IPRangeArrayFilteredDimensionSpec(name, getDelegate().withDimension(newDimension), ips);
     }
 
     @Override

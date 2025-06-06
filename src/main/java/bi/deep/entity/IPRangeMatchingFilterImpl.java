@@ -18,11 +18,15 @@
  */
 package bi.deep.entity;
 
+import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
+
 import bi.deep.entity.array.IPRangeArray;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.annotation.Nullable;
 import org.apache.druid.query.filter.ColumnIndexSelector;
 import org.apache.druid.query.filter.DruidDoublePredicate;
@@ -68,10 +72,10 @@ public class IPRangeMatchingFilterImpl implements Filter {
     }
 
     private static class MyPredicateFactory implements DruidPredicateFactory {
-        private final List<IPAddress> ips;
+        private final SortedSet<IPAddress> ips = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
 
         public MyPredicateFactory(List<IPAddress> ips) {
-            this.ips = ips;
+            this.ips.addAll(ips);
         }
 
         @Override
@@ -104,7 +108,7 @@ public class IPRangeMatchingFilterImpl implements Filter {
             return object -> {
                 if (object instanceof IPRangeArray) {
                     IPRangeArray ipRange = (IPRangeArray) object;
-                    return DruidPredicateMatch.of(ips.stream().anyMatch(ipRange::match));
+                    return DruidPredicateMatch.of(ipRange.match(ips));
                 }
 
                 return DruidPredicateMatch.of(false);

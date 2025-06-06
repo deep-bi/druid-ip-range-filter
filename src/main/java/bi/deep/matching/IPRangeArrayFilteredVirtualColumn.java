@@ -93,7 +93,7 @@ public class IPRangeArrayFilteredVirtualColumn implements VirtualColumn {
 
     @Override
     public ColumnCapabilities capabilities(ColumnInspector inspector, String columnName) {
-        return inspector.getColumnCapabilities(delegate.getDimension());
+        return inspector.getColumnCapabilities(getDelegate().getDimension());
     }
 
     @Override

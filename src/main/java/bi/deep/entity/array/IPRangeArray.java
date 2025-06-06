@@ -18,6 +18,8 @@
  */
 package bi.deep.entity.array;
 
+import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
+
 import bi.deep.entity.SerializationUtil;
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -27,20 +29,23 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.druid.java.util.common.IAE;
 
 @JsonSerialize(using = IPRangeArraySerializer.class)
 public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
-    public static final IPRangeArray EMPTY = new IPRangeArray(Collections.emptyList());
+    public static final IPRangeArray EMPTY = new IPRangeArray(Collections.emptySortedSet());
     public static final Comparator<IPRangeArray> COMPARATOR = Comparator.nullsFirst(IPRangeArray::compareTo);
-    private final List<IPAddressRange> addressRanges;
+    private final SortedSet<IPAddressRange> addressRanges;
 
-    public IPRangeArray(@Nullable List<IPAddressRange> addressRanges) {
+    public IPRangeArray(SortedSet<IPAddressRange> addressRanges) {
         this.addressRanges = addressRanges;
     }
 
@@ -52,16 +57,62 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return new IPRangeArray(values.stream()
                 .map(Objects::toString)
                 .map(IPRangeUtil::fromString)
-                .collect(Collectors.toList()));
+                .sorted(ADDRESS_LOW_VALUE_COMPARATOR)
+                .collect(Collectors.toCollection(TreeSet::new)));
     }
 
-    public List<IPAddressRange> getAddressRanges() {
+    public Set<IPAddressRange> getAddressRanges() {
         return addressRanges;
     }
 
-    public boolean match(IPAddress value) {
-        return CollectionUtils.isNotEmpty(addressRanges)
-                && addressRanges.stream().anyMatch(m -> m.contains(value));
+    public boolean match(IPAddress address) {
+        for (IPAddressRange range : addressRanges) {
+            if (range.getLower().compareTo(address) > 0) {
+                return false;
+            }
+
+            if (range.contains(address)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean match(SortedSet<IPAddress> addresses) {
+        Iterator<IPAddressRange> rangeIter = addressRanges.iterator();
+        Iterator<IPAddress> addressIter = addresses.iterator();
+
+        if (!rangeIter.hasNext() || !addressIter.hasNext()) {
+            return false; // One set is empty
+        }
+
+        IPAddressRange range = rangeIter.next();
+        IPAddress address = addressIter.next();
+
+        while (true) {
+            int cmp = address.compareTo(range.getLower());
+
+            if (cmp < 0) {
+                if (addressIter.hasNext()) {
+                    address = addressIter.next();
+                } else {
+                    break;
+                }
+            } else {
+                if (range.contains(address)) {
+                    return true;
+                }
+
+                if (rangeIter.hasNext()) {
+                    range = rangeIter.next();
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -90,16 +141,20 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
 
     @Override
     public int compareTo(IPRangeArray other) {
-        int minSize = Math.min(addressRanges.size(), other.getAddressRanges().size());
+        Iterator<IPAddressRange> iter = addressRanges.iterator();
+        Iterator<IPAddressRange> otherIter = other.addressRanges.iterator();
 
-        for (int i = 0; i < minSize; i++) {
-            int cmp = addressRanges.get(i).compareTo(other.getAddressRanges().get(i));
+        while (iter.hasNext() && otherIter.hasNext()) {
+            int cmp = ADDRESS_LOW_VALUE_COMPARATOR.compare(iter.next(), otherIter.next());
+
             if (cmp != 0) {
                 return cmp;
             }
         }
 
-        return Integer.compare(addressRanges.size(), other.getAddressRanges().size());
+        if (iter.hasNext()) return 1;
+        if (otherIter.hasNext()) return -1;
+        return 0;
     }
 
     public byte[] toBytes() {
