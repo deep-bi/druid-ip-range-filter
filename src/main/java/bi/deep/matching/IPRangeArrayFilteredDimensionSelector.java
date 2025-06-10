@@ -22,9 +22,11 @@ import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 
 import bi.deep.entity.array.IPRangeArray;
 import inet.ipaddr.IPAddress;
+import inet.ipaddr.format.IPAddressRange;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.druid.common.config.NullHandling;
@@ -83,7 +85,10 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
             return IPRangeArray.EMPTY;
         }
 
-        return value.match(rangesToMatch) ? value : IPRangeArray.EMPTY;
+        SortedSet<IPAddressRange> addressRanges = rangesToMatch.stream()
+                .filter(value::match)
+                .collect(Collectors.toCollection(() -> new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR)));
+        return addressRanges.isEmpty() ? null : new IPRangeArray(addressRanges);
     }
 
     @Override

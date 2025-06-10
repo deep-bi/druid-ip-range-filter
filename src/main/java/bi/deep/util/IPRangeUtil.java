@@ -148,19 +148,20 @@ public class IPRangeUtil {
         return new IPSetContents(ips, ranges);
     }
 
-    public static String getMatchingIPs(String input, Set<String> ips) {
+    public static String getMatchingIPs(String input, List<IPAddress> ips) {
         if (StringUtils.isBlank(input) || CollectionUtils.isEmpty(ips)) {
             return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
         }
 
-        List<IPBoundedRange> ranges = extractIPSetContents(input).getRanges();
-        if (CollectionUtils.isEmpty(ranges)) {
+        IPSetContents ranges = extractIPSetContents(input);
+
+        if (ranges.isEmpty()) {
             return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
         }
 
         // Filter matching IPs
-        List<String> matchingIps = mapStringsToIps(ips).stream()
-                .filter(ip -> ranges.stream().anyMatch(r -> r.contains(ip, false)))
+        List<String> matchingIps = ips.stream()
+                .filter(ip -> ranges.contains(ip, false))
                 .map(IPAddress::toString)
                 .collect(Collectors.toList());
 

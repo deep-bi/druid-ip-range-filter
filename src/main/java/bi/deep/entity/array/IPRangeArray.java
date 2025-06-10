@@ -57,8 +57,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return new IPRangeArray(values.stream()
                 .map(Objects::toString)
                 .map(IPRangeUtil::fromString)
-                .sorted(ADDRESS_LOW_VALUE_COMPARATOR)
-                .collect(Collectors.toCollection(TreeSet::new)));
+                .collect(Collectors.toCollection(() -> new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR))));
     }
 
     public Set<IPAddressRange> getAddressRanges() {

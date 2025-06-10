@@ -65,7 +65,6 @@ public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements Di
         final SortedSet<IPAddress> addresses = getRanges().stream()
                 .map(this::map)
                 .filter(Objects::nonNull)
-                .sorted()
                 .collect(Collectors.toCollection(TreeSet::new));
         return new FixedSetIPFilterImpl(dimension, addresses);
     }

@@ -20,6 +20,8 @@ package bi.deep.matching;
 
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import inet.ipaddr.IPAddress;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -31,10 +33,10 @@ public class IPRangeFilteredExtractionFn extends DimExtractionFn {
 
     public static final byte CACHE_TYPE_ID_IP_RANGE_FN = 0xF;
 
-    private final Set<String> ips;
+    private final List<IPAddress> ips;
 
     public IPRangeFilteredExtractionFn(Set<String> ips) {
-        this.ips = ips;
+        this.ips = IPRangeUtil.mapStringsToIps(ips);
     }
 
     @Nullable

@@ -22,6 +22,7 @@ import bi.deep.range.IPBoundedRange;
 import inet.ipaddr.IPAddress;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class IPSetContents {
 
@@ -39,6 +40,19 @@ public class IPSetContents {
     @Nullable
     public List<IPBoundedRange> getRanges() {
         return ranges;
+    }
+
+    public boolean isEmpty() {
+        return CollectionUtils.isEmpty(ipAddresses) && CollectionUtils.isEmpty(ranges);
+    }
+
+    public boolean contains(IPAddress ip, boolean ignoreVersionMismatch) {
+        if (CollectionUtils.isNotEmpty(ipAddresses) && ipAddresses.contains(ip)) {
+            return true;
+        }
+
+        return CollectionUtils.isNotEmpty(ranges)
+                && ranges.stream().anyMatch(r -> r.contains(ip, ignoreVersionMismatch));
     }
 
     public boolean containsAnyIP(List<IPAddress> candidates, boolean ignoreVersionMismatch) {

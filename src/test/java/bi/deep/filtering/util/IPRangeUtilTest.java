@@ -18,7 +18,9 @@
  */
 package bi.deep.filtering.util;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bi.deep.entity.IPSetContents;
 import bi.deep.util.IPRangeUtil;
@@ -51,21 +53,21 @@ class IPRangeUtilTest {
     @Test
     void testGetMatchingIPs_EmptyResult() {
         String input = "192.168.1.1-192.168.1.100";
-        Set<String> ips = Sets.newHashSet("10.0.0.1");
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.0.0.1"));
         assertEquals(NullHandling.sqlCompatible() ? null : "", IPRangeUtil.getMatchingIPs(input, ips));
     }
 
     @Test
     void testGetMatchingIPs_SingleMatch() {
         String input = "192.168.1.1-192.168.1.100";
-        Set<String> ips = Sets.newHashSet("192.168.1.50");
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50"));
         assertEquals("192.168.1.50", IPRangeUtil.getMatchingIPs(input, ips));
     }
 
     @Test
     void testGetMatchingIPs_MultipleMatches() throws JsonProcessingException {
         String input = "192.168.1.1-192.168.1.100,10.0.0.0/24";
-        Set<String> ips = Sets.newHashSet("192.168.1.50", "10.0.0.1");
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50", "10.0.0.1"));
         String expectedJson = new ObjectMapper().writeValueAsString(Arrays.asList("192.168.1.50", "10.0.0.1"));
         assertEquals(expectedJson, IPRangeUtil.getMatchingIPs(input, ips));
     }
