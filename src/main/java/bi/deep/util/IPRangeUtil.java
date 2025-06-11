@@ -41,13 +41,17 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
 
-public class IPRangeUtil {
+public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern DASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)[–-]([0-9A-Fa-f:.]+)$");
     private static final Pattern SLASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)/([0-9A-Fa-f:.]+)$");
     private static final Pattern CIDR_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+/\\d+$");
     private static final Pattern IP_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+$");
     private static final int PARALLEL_LIMIT = 200;
+
+    private IPRangeUtil() {
+        throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
+    }
 
     private static Object parseToken(String data, Map<String, Object> cache) {
         return cache.computeIfAbsent(data, token -> {
@@ -125,19 +129,20 @@ public class IPRangeUtil {
         return new IPSetContents(ips, ranges);
     }
 
-    public static String getMatchingIPs(String input, Set<String> ips) {
+    public static String getMatchingIPs(String input, List<IPAddress> ips) {
         if (StringUtils.isBlank(input) || CollectionUtils.isEmpty(ips)) {
             return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
         }
 
-        List<IPBoundedRange> ranges = extractIPSetContents(input).getRanges();
-        if (CollectionUtils.isEmpty(ranges)) {
+        IPSetContents ranges = extractIPSetContents(input);
+
+        if (ranges.isEmpty()) {
             return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
         }
 
         // Filter matching IPs
-        List<String> matchingIps = mapStringsToIps(ips).stream()
-                .filter(ip -> ranges.stream().anyMatch(r -> r.contains(ip, false)))
+        List<String> matchingIps = ips.stream()
+                .filter(ip -> ranges.contains(ip, false))
                 .map(IPAddress::toString)
                 .collect(Collectors.toList());
 

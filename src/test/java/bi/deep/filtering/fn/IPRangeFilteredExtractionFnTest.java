@@ -21,9 +21,10 @@ package bi.deep.filtering.fn;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bi.deep.matching.IPRangeFilteredExtractionFn;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import bi.deep.util.IPRangeUtil;
+import com.google.common.collect.Sets;
+import inet.ipaddr.IPAddress;
+import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
@@ -56,7 +57,7 @@ class IPRangeFilteredExtractionFnTest {
 
     @BeforeEach
     void setUp() {
-        Set<String> testIps = new HashSet<>(Arrays.asList("10.162.59.19", "10.161.12.13"));
+        List<IPAddress> testIps = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.162.59.19", "10.161.12.13"));
         extractionFn = new IPRangeFilteredExtractionFn(testIps);
     }
 
