@@ -18,10 +18,13 @@
  */
 package bi.deep.matching;
 
+import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.Preconditions;
+import inet.ipaddr.IPAddress;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.druid.query.dimension.DimensionSpec;
@@ -34,13 +37,13 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
     public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x5;
     private final String name;
     private final DimensionSpec delegate;
-    private final Set<String> ips;
+    private final List<IPAddress> ips;
 
     @JsonCreator
     public IPRangeFilteredDimensionSpec(
             @JsonProperty("name") String name,
             @JsonProperty("delegate") DimensionSpec delegate,
-            @JsonProperty("values") Set<String> ips) {
+            @JsonProperty("values") List<IPAddress> ips) {
         if (ips == null || ips.isEmpty()) {
             throw new IllegalArgumentException("values are not defined");
         }
@@ -50,7 +53,8 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
     }
 
     public static DimensionSelector makeDimensionSelector(Set<String> values, DimensionSelector valueSelector) {
-        return new IPRangeFilteredDimensionSelector(valueSelector, new IPRangeFilteredExtractionFn(values));
+        return new IPRangeFilteredDimensionSelector(
+                valueSelector, new IPRangeFilteredExtractionFn(IPRangeUtil.mapStringsToIps(values)));
     }
 
     @JsonProperty("delegate")
@@ -59,7 +63,7 @@ public class IPRangeFilteredDimensionSpec implements DimensionSpec {
     }
 
     @JsonProperty("values")
-    public Set<String> getIps() {
+    public List<IPAddress> getIps() {
         return ips;
     }
 
