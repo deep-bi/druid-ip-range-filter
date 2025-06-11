@@ -43,12 +43,9 @@ public class IPSetContents {
     }
 
     public boolean contains(IPAddress address, boolean ignoreVersionMismatch) {
-        if (CollectionUtils.isNotEmpty(ipAddresses) && ipAddresses.contains(address)) {
-            return true;
-        }
-
-        return CollectionUtils.isNotEmpty(ranges)
-                && ranges.stream().anyMatch(r -> r.contains(address, ignoreVersionMismatch));
+        return (CollectionUtils.isNotEmpty(ipAddresses) && ipAddresses.contains(address))
+                || (CollectionUtils.isNotEmpty(ranges)
+                        && ranges.stream().anyMatch(r -> r.contains(address, ignoreVersionMismatch)));
     }
 
     public boolean containsAnyIP(List<IPAddress> candidates, boolean ignoreVersionMismatch) {
