@@ -53,9 +53,9 @@ public final class IPRangeUtil {
     private static final Pattern IP_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+$");
     private static final int PARALLEL_LIMIT = 200;
 
-  private IPRangeUtil() {
-    throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
-  }
+    private IPRangeUtil() {
+        throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
+    }
 
     public static IPAddressRange fromString(String token) {
         Matcher dashMatcher = DASH_REGEX.matcher(token);
