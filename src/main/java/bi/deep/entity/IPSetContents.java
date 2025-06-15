@@ -42,17 +42,10 @@ public class IPSetContents {
         return ranges;
     }
 
-    public boolean isEmpty() {
-        return CollectionUtils.isEmpty(ipAddresses) && CollectionUtils.isEmpty(ranges);
-    }
-
-    public boolean contains(IPAddress ip, boolean ignoreVersionMismatch) {
-        if (CollectionUtils.isNotEmpty(ipAddresses) && ipAddresses.contains(ip)) {
-            return true;
-        }
-
-        return CollectionUtils.isNotEmpty(ranges)
-                && ranges.stream().anyMatch(r -> r.contains(ip, ignoreVersionMismatch));
+    public boolean contains(IPAddress address, boolean ignoreVersionMismatch) {
+        return (CollectionUtils.isNotEmpty(ipAddresses) && ipAddresses.contains(address))
+                || (CollectionUtils.isNotEmpty(ranges)
+                        && ranges.stream().anyMatch(r -> r.contains(address, ignoreVersionMismatch)));
     }
 
     public boolean containsAnyIP(List<IPAddress> candidates, boolean ignoreVersionMismatch) {
@@ -62,5 +55,9 @@ public class IPSetContents {
             }
         }
         return ranges != null && ranges.stream().anyMatch(r -> r.containsAnyIP(candidates, ignoreVersionMismatch));
+    }
+
+    public boolean isEmpty() {
+        return CollectionUtils.isEmpty(ranges) && CollectionUtils.isEmpty(ipAddresses);
     }
 }

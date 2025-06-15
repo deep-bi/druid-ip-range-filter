@@ -51,21 +51,43 @@ class IPRangeUtilTest {
     }
 
     @Test
-    void testGetMatchingIPs_EmptyResult() {
+    void testGetMatchingIP_EmptyResult() {
+        String input = "192.168.1.1";
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.0.0.1"));
+        assertEquals(NullHandling.sqlCompatible() ? null : "", IPRangeUtil.getMatchingIPs(input, ips));
+    }
+
+    @Test
+    void testGetMatchingIP_SingleMatch() {
+        String input = "192.168.1.50,192.168.1.49";
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50"));
+        assertEquals("192.168.1.50", IPRangeUtil.getMatchingIPs(input, ips));
+    }
+
+    @Test
+    void testGetMatchingIP_MultipleMatches() throws JsonProcessingException {
+        String input = "192.168.1.50,10.0.0.0/24";
+        List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50", "10.0.0.1"));
+        String expectedJson = new ObjectMapper().writeValueAsString(Arrays.asList("192.168.1.50", "10.0.0.1"));
+        assertEquals(expectedJson, IPRangeUtil.getMatchingIPs(input, ips));
+    }
+
+    @Test
+    void testGetMatchingIPRanges_EmptyResult() {
         String input = "192.168.1.1-192.168.1.100";
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.0.0.1"));
         assertEquals(NullHandling.sqlCompatible() ? null : "", IPRangeUtil.getMatchingIPs(input, ips));
     }
 
     @Test
-    void testGetMatchingIPs_SingleMatch() {
+    void testGetMatchingIPRanges_SingleMatch() {
         String input = "192.168.1.1-192.168.1.100";
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50"));
         assertEquals("192.168.1.50", IPRangeUtil.getMatchingIPs(input, ips));
     }
 
     @Test
-    void testGetMatchingIPs_MultipleMatches() throws JsonProcessingException {
+    void testGetMatchingIPRanges_MultipleMatches() throws JsonProcessingException {
         String input = "192.168.1.1-192.168.1.100,10.0.0.0/24";
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.50", "10.0.0.1"));
         String expectedJson = new ObjectMapper().writeValueAsString(Arrays.asList("192.168.1.50", "10.0.0.1"));

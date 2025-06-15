@@ -45,13 +45,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
 import org.apache.druid.java.util.common.IAE;
 
-public class IPRangeUtil {
+public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern DASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)[–-]([0-9A-Fa-f:.]+)$");
     private static final Pattern SLASH_REGEX = Pattern.compile("^([0-9A-Fa-f:.]+)/([0-9A-Fa-f:.]+)$");
     private static final Pattern CIDR_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+/\\d+$");
     private static final Pattern IP_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+$");
     private static final int PARALLEL_LIMIT = 200;
+
+  private IPRangeUtil() {
+    throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
+  }
 
     public static IPAddressRange fromString(String token) {
         Matcher dashMatcher = DASH_REGEX.matcher(token);

@@ -22,7 +22,6 @@ import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import inet.ipaddr.IPAddress;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
@@ -35,8 +34,8 @@ public class IPRangeFilteredExtractionFn extends DimExtractionFn {
 
     private final List<IPAddress> ips;
 
-    public IPRangeFilteredExtractionFn(Set<String> ips) {
-        this.ips = IPRangeUtil.mapStringsToIps(ips);
+    public IPRangeFilteredExtractionFn(List<IPAddress> ips) {
+        this.ips = ips;
     }
 
     @Nullable
