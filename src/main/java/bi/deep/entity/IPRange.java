@@ -92,7 +92,7 @@ public class IPRange implements Serializable, Comparable<IPRange> {
         try {
             return SerializationUtil.serialize(this);
         } catch (IOException e) {
-            throw new IAE("Unable to covert to bytes", e);
+            throw new IAE("Unable to convert to bytes", e);
         }
     }
 
@@ -109,9 +109,13 @@ public class IPRange implements Serializable, Comparable<IPRange> {
         }
 
         try {
-            return SerializationUtil.deserialize((byte[]) input, IPRange.class);
+            return SerializationUtil.deserializeToIPRange((byte[]) input);
         } catch (Exception e) {
             throw new IAE("Unable to read input", e);
         }
+    }
+
+    public int getLengthOfEncodedKeyComponent() {
+        return IPRangeUtil.getSize(addressRange);
     }
 }

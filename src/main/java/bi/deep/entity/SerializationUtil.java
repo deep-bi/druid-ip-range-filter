@@ -18,27 +18,93 @@
  */
 package bi.deep.entity;
 
+import bi.deep.entity.array.IPRangeArray;
+import inet.ipaddr.IPAddress;
+import inet.ipaddr.format.IPAddressRange;
+import inet.ipaddr.ipv4.IPv4Address;
+import inet.ipaddr.ipv6.IPv6Address;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SerializationUtil {
-    public static byte[] serialize(Object obj) throws IOException {
+public final class SerializationUtil {
+
+    private SerializationUtil() {
+        throw new AssertionError("No bi.deep.entity.SerializationUtil instances for you!");
+    }
+
+    public static byte[] serialize(IPRange range) throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ObjectOutputStream out = new ObjectOutputStream(bos)) {
-
-            out.writeObject(obj);
+                DataOutputStream out = new DataOutputStream(bos)) {
+            serialize(range.getAddressRange(), out);
             return bos.toByteArray();
         }
     }
 
-    public static <T> T deserialize(byte[] data, Class<T> clazz) throws IOException, ClassNotFoundException {
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
-                ObjectInputStream in = new ObjectInputStream(bis)) {
-
-            return clazz.cast(in.readObject());
+    public static byte[] serialize(IPRangeArray rangeArray) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                DataOutputStream out = new DataOutputStream(bos)) {
+            for (IPAddressRange range : rangeArray.getAddressRanges()) {
+                serialize(range, out);
+            }
+            return bos.toByteArray();
         }
+    }
+
+    public static IPRangeArray deserializeToIPRangeArray(byte[] data) throws IOException {
+        List<IPAddressRange> array = new ArrayList<>();
+
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
+                DataInputStream in = new DataInputStream(bis)) {
+            while (in.available() > 0) {
+                array.add(deserialize(in));
+            }
+        }
+
+        return new IPRangeArray(array);
+    }
+
+    public static IPRange deserializeToIPRange(byte[] data) throws IOException {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
+                DataInputStream in = new DataInputStream(bis)) {
+            return new IPRange(deserialize(in));
+        }
+    }
+
+    private static IPAddressRange deserialize(DataInputStream in) throws IOException {
+        int version = in.readInt();
+        byte[] lowerBytes = new byte[in.readInt()];
+        in.readFully(lowerBytes);
+
+        byte[] upperBytes = new byte[in.readInt()];
+        in.readFully(upperBytes);
+
+        return parseAddress(version, lowerBytes).spanWithRange(parseAddress(version, upperBytes));
+    }
+
+    private static IPAddress parseAddress(int version, byte[] bytes) {
+        if (version == IPv4Address.BYTE_COUNT) {
+            return new IPv4Address(bytes);
+        } else if (version == IPv6Address.BYTE_COUNT) {
+            return new IPv6Address(bytes);
+        }
+
+        throw new IllegalArgumentException("Unknown IP version");
+    }
+
+    private static void serialize(IPAddressRange range, DataOutputStream out) throws IOException {
+        IPAddress lowerAddress = range.getLower();
+        byte[] lowerBytes = lowerAddress.getBytes();
+        out.writeInt(range.getByteCount());
+        out.writeInt(lowerBytes.length);
+        out.write(lowerBytes);
+
+        byte[] upperBytes = range.getUpper().getBytes();
+        out.writeInt(upperBytes.length);
+        out.write(upperBytes);
     }
 }

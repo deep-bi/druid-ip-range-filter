@@ -29,7 +29,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.druid.common.config.NullHandling;
 import org.apache.druid.query.filter.DruidPredicateFactory;
 import org.apache.druid.query.filter.ValueMatcher;
 import org.apache.druid.query.monomorphicprocessing.RuntimeShapeInspector;
@@ -77,17 +76,12 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
     public IPRangeArray getObject() {
         IPRangeArray value = columnSelector.getObject();
 
-        if (NullHandling.sqlCompatible() && value == null) {
+        if (value == null) {
             return null;
         }
 
-        if (value == null) {
-            return IPRangeArray.EMPTY;
-        }
-
-        SortedSet<IPAddressRange> addressRanges = rangesToMatch.stream()
-                .filter(value::match)
-                .collect(Collectors.toCollection(() -> new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR)));
+        List<IPAddressRange> addressRanges =
+                rangesToMatch.stream().filter(value::match).collect(Collectors.toList());
         return addressRanges.isEmpty() ? null : new IPRangeArray(addressRanges);
     }
 

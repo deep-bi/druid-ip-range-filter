@@ -41,12 +41,13 @@ import org.apache.druid.java.util.common.IAE;
 
 @JsonSerialize(using = IPRangeArraySerializer.class)
 public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
-    public static final IPRangeArray EMPTY = new IPRangeArray(Collections.emptySortedSet());
+    public static final IPRangeArray EMPTY = new IPRangeArray(Collections.emptyList());
     public static final Comparator<IPRangeArray> COMPARATOR = Comparator.nullsFirst(IPRangeArray::compareTo);
     private final SortedSet<IPAddressRange> addressRanges;
 
-    public IPRangeArray(SortedSet<IPAddressRange> addressRanges) {
-        this.addressRanges = addressRanges;
+    public IPRangeArray(List<IPAddressRange> addressRanges) {
+        this.addressRanges = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
+        this.addressRanges.addAll(addressRanges);
     }
 
     public static IPRangeArray fromArray(List<Object> values) {
@@ -57,7 +58,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return new IPRangeArray(values.stream()
                 .map(Objects::toString)
                 .map(IPRangeUtil::fromString)
-                .collect(Collectors.toCollection(() -> new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR))));
+                .collect(Collectors.toList()));
     }
 
     public Set<IPAddressRange> getAddressRanges() {
@@ -160,7 +161,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         try {
             return SerializationUtil.serialize(this);
         } catch (IOException e) {
-            throw new IAE("Unable to covert to bytes", e);
+            throw new IAE("Unable to convert to bytes", e);
         }
     }
 
@@ -177,9 +178,21 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         }
 
         try {
-            return SerializationUtil.deserialize((byte[]) input, IPRangeArray.class);
+            return SerializationUtil.deserializeToIPRangeArray((byte[]) input);
         } catch (Exception e) {
             throw new IAE("Unable to read input", e);
         }
+    }
+
+    public boolean isEmpty() {
+        return addressRanges == null || addressRanges.isEmpty();
+    }
+
+    public int getLengthOfEncodedKeyComponent() {
+        if (isEmpty()) {
+            return 0;
+        }
+
+        return addressRanges.stream().mapToInt(IPRangeUtil::getSize).sum();
     }
 }

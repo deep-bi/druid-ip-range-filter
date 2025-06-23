@@ -18,20 +18,43 @@
  */
 package bi.deep.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import inet.ipaddr.format.IPAddressRange;
 import java.nio.ByteBuffer;
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class IPRangeObjectStrategyTest {
-    @Test
-    void testSerialization() {
-        IPRange range = IPRange.from("192.168.0.1");
+
+    @ParameterizedTest
+    @MethodSource("provideTestCases")
+    void testSerialization(String ipRange) {
+        IPRange range = IPRange.from(ipRange);
         byte[] bytes = IPRangeObjectStrategy.INSTANCE.toBytes(range);
+        assertNotNull(bytes);
         assertTrue(bytes.length > 0);
 
         ByteBuffer wrap = ByteBuffer.wrap(bytes);
         IPRange deserialized = IPRangeObjectStrategy.INSTANCE.fromByteBuffer(wrap, bytes.length);
-        assertEquals(range, deserialized);
+        assertNotNull(deserialized);
+
+        IPAddressRange addressRange = range.getAddressRange();
+        addressRange = addressRange.getLower().spanWithRange(addressRange.getUpper());
+        assertEquals(addressRange, deserialized.getAddressRange());
+    }
+
+    static Stream<Arguments> provideTestCases() {
+        return Stream.of(
+                Arguments.of("e3e7:682:c209:4cac:629f:6fbf:d82c:7cd"),
+                Arguments.of("48.146.23.142"),
+                Arguments.of("2404:6800:4003:c03::/64"),
+                Arguments.of("10.0.0.0/24"),
+                Arguments.of("172.16.0.5-172.16.0.20"),
+                Arguments.of("2001:0db8:85a3::8a2e:0370:1000-2001:0db8:85a3::8a2e:0370:9000"));
     }
 }

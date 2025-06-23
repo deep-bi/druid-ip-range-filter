@@ -70,11 +70,7 @@ public class IPRangeArrayDimensionHandler implements DimensionHandler<IPRangeArr
 
     @Override
     public int getLengthOfEncodedKeyComponent(IPRangeArray dimVals) {
-        if (dimVals == null) {
-            return 0;
-        }
-
-        return dimVals.toBytes().length;
+        return dimVals == null ? 0 : dimVals.getLengthOfEncodedKeyComponent();
     }
 
     @Override

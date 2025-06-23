@@ -41,7 +41,7 @@ public class IPRangeDimensionIndexer implements DimensionIndexer<IPRange, IPRang
     public EncodedKeyComponent<IPRange> processRowValsToUnsortedEncodedKeyComponent(
             @Nullable Object dimValues, boolean reportParseExceptions) {
         IPRange range = IPRange.from(dimValues);
-        return new EncodedKeyComponent<>(range, range.toBytes().length);
+        return new EncodedKeyComponent<>(range, range.getLengthOfEncodedKeyComponent());
     }
 
     @Override

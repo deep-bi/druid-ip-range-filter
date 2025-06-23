@@ -74,7 +74,7 @@ public class IPRangeDimensionHandler implements DimensionHandler<IPRange, IPRang
             return 0;
         }
 
-        return dimVals.toBytes().length;
+        return dimVals.getLengthOfEncodedKeyComponent();
     }
 
     @Override

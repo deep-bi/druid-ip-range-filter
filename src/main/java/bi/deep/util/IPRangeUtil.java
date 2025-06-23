@@ -27,6 +27,7 @@ import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
+import inet.ipaddr.ipv4.IPv4Address;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +75,12 @@ public final class IPRangeUtil {
         }
 
         return new IPAddressString(token).getAddress();
+    }
+
+    public static int getSize(IPAddressRange range) {
+        if (range == null) return 0;
+
+        return range.getByteCount() == IPv4Address.BYTE_COUNT ? 20 : 44;
     }
 
     private static Object parseToken(String data, Map<String, Object> cache) {
