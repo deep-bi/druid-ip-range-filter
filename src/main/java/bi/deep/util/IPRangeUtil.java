@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.druid.common.config.NullHandling;
 
 public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -166,13 +165,13 @@ public final class IPRangeUtil {
 
     public static String getMatchingIPs(String input, List<IPAddress> ips) {
         if (StringUtils.isBlank(input) || CollectionUtils.isEmpty(ips)) {
-            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
+            return null;
         }
 
         IPSetContents ranges = extractIPSetContents(input);
 
         if (ranges.isEmpty()) {
-            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
+            return null;
         }
 
         // Filter matching IPs
@@ -182,7 +181,7 @@ public final class IPRangeUtil {
                 .collect(Collectors.toList());
 
         if (matchingIps.isEmpty()) {
-            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
+            return null;
         }
         if (matchingIps.size() == 1) {
             return matchingIps.get(0);
