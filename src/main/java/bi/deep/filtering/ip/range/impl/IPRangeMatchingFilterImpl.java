@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.filtering.ip.range.impl;
 
 import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 
-import bi.deep.entity.array.IPRangeArray;
+import bi.deep.entity.dimension.IPRangeArray;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
 import java.util.List;
@@ -47,7 +47,7 @@ public class IPRangeMatchingFilterImpl implements Filter {
     private final String column;
     private final List<IPAddress> ips;
 
-    public IPRangeMatchingFilterImpl(String column, List<IPAddress> ips, boolean ignoreVersionMismatch) {
+    public IPRangeMatchingFilterImpl(String column, List<IPAddress> ips) {
         if (column == null) {
             throw new IllegalArgumentException("Column cannot be null");
         }

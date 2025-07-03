@@ -18,7 +18,8 @@
  */
 package bi.deep.entity;
 
-import bi.deep.entity.array.IPRangeArray;
+import bi.deep.entity.dimension.IPRange;
+import bi.deep.entity.dimension.IPRangeArray;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.format.IPAddressRange;
 import inet.ipaddr.ipv4.IPv4Address;

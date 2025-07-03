@@ -16,22 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
-import javax.annotation.Nullable;
-import org.apache.druid.data.input.InputRow;
-import org.apache.druid.segment.serde.ComplexMetricExtractor;
+import bi.deep.guice.IPRangeDimensionModule;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.druid.data.input.impl.DimensionSchema;
+import org.apache.druid.segment.column.ColumnType;
 
-public class IPRangeComplexMetricExtractor implements ComplexMetricExtractor {
-    @Override
-    public Class extractedClass() {
-        return IPRange.class;
+@JsonTypeName(IPRangeDimensionModule.TYPE_NAME)
+public class IPRangeDimensionSchema extends DimensionSchema {
+
+    @JsonCreator
+    public IPRangeDimensionSchema(@JsonProperty("name") String name) {
+        super(name, MultiValueHandling.SORTED_ARRAY, true);
     }
 
-    @Nullable
     @Override
-    public IPRange extractValue(InputRow inputRow, String fieldName) {
-        final Object input = inputRow.getRaw(fieldName);
-        return IPRange.from(input);
+    public String getTypeName() {
+        return IPRangeDimensionModule.TYPE_NAME;
+    }
+
+    @Override
+    public ColumnType getColumnType() {
+        return IPRangeDimensionModule.TYPE;
     }
 }

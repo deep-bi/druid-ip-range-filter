@@ -16,22 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity.array;
+package bi.deep.entity.dimension;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import inet.ipaddr.format.IPAddressRange;
 import java.io.IOException;
 
-public class IPRangeArraySerializer extends JsonSerializer<IPRangeArray> {
+public class IPRangeSerializer extends JsonSerializer<IPRange> {
     @Override
-    public void serialize(IPRangeArray value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeStartArray();
-
-        for (IPAddressRange ip : value.getAddressRanges()) {
-            gen.writeString(ip.toString());
+    public void serialize(IPRange value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        if (value == null) {
+            gen.writeNull();
+        } else {
+            gen.writeString(value.toString());
         }
-        gen.writeEndArray();
     }
 }

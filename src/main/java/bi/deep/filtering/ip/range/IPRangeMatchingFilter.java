@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.filtering.ip.range;
 
+import bi.deep.filtering.ip.range.impl.IPRangeMatchingFilterImpl;
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,25 +36,20 @@ import org.apache.druid.query.filter.DimFilter;
 import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
-@JsonTypeName("ip_range_match2")
+@JsonTypeName("ip_match")
 public class IPRangeMatchingFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x53;
     private final String dimension;
     private final Set<String> ips;
-    private final boolean ignoreVersionMismatch;
 
     @JsonCreator
-    public IPRangeMatchingFilter(
-            @JsonProperty("dimension") String dimension,
-            @JsonProperty("values") Set<String> ips,
-            @JsonProperty("ignoreVersionMismatch") @Nullable Boolean ignoreVersionMismatch) {
+    public IPRangeMatchingFilter(@JsonProperty("dimension") String dimension, @JsonProperty("values") Set<String> ips) {
         this.dimension = Preconditions.checkNotNull(dimension, "dimension");
         if (CollectionUtils.isEmpty(ips)) {
             throw new IllegalArgumentException("values are not defined");
         }
 
         this.ips = ips;
-        this.ignoreVersionMismatch = ignoreVersionMismatch != null && ignoreVersionMismatch;
     }
 
     @JsonProperty("dimension")
@@ -64,11 +60,6 @@ public class IPRangeMatchingFilter extends AbstractOptimizableDimFilter implemen
     @JsonProperty("values")
     public Set<String> getIps() {
         return ips;
-    }
-
-    @JsonProperty("ignoreVersionMismatch")
-    public boolean isIgnoreVersionMismatch() {
-        return ignoreVersionMismatch;
     }
 
     @Override
@@ -82,19 +73,17 @@ public class IPRangeMatchingFilter extends AbstractOptimizableDimFilter implemen
 
         final IPRangeMatchingFilter that = (IPRangeMatchingFilter) o;
 
-        return ignoreVersionMismatch == that.ignoreVersionMismatch
-                && Objects.equals(dimension, that.dimension)
-                && Objects.equals(ips, that.ips);
+        return Objects.equals(dimension, that.dimension) && Objects.equals(ips, that.ips);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dimension, ips, ignoreVersionMismatch);
+        return Objects.hash(dimension, ips);
     }
 
     @Override
     public Filter toFilter() {
-        return new IPRangeMatchingFilterImpl(dimension, IPRangeUtil.mapStringsToIps(ips), ignoreVersionMismatch);
+        return new IPRangeMatchingFilterImpl(dimension, IPRangeUtil.mapStringsToIps(ips));
     }
 
     @Nullable
@@ -114,8 +103,6 @@ public class IPRangeMatchingFilter extends AbstractOptimizableDimFilter implemen
                 .appendString(dimension)
                 .appendByte(DimFilterUtils.STRING_SEPARATOR)
                 .appendString(ips.toString())
-                .appendByte(DimFilterUtils.STRING_SEPARATOR)
-                .appendBoolean(ignoreVersionMismatch)
                 .build();
     }
 }

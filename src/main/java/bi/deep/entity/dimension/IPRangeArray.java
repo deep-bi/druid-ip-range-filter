@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity.array;
+package bi.deep.entity.dimension;
 
 import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 
@@ -58,6 +58,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return new IPRangeArray(values.stream()
                 .map(Objects::toString)
                 .map(IPRangeUtil::fromString)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
     }
 

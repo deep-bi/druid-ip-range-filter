@@ -28,6 +28,12 @@ import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
 import inet.ipaddr.ipv4.IPv4Address;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.druid.common.config.NullHandling;
+import org.apache.druid.java.util.common.IAE;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +47,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.druid.common.config.NullHandling;
-import org.apache.druid.java.util.common.IAE;
 
 public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -58,17 +60,30 @@ public final class IPRangeUtil {
         throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
     }
 
+    @Nullable
     public static IPAddressRange fromString(String token) {
         Matcher dashMatcher = DASH_REGEX.matcher(token);
 
         if (dashMatcher.matches()) {
-            String lo = dashMatcher.group(1);
-            String hi = dashMatcher.group(2);
-            IPAddress la = new IPAddressString(lo).getAddress();
-            IPAddress ha = new IPAddressString(hi).getAddress();
+            IPAddress low = new IPAddressString(dashMatcher.group(1)).getAddress();
+            IPAddress high = new IPAddressString(dashMatcher.group(2)).getAddress();
 
-            if (la != null && ha != null && la.getIPVersion() == ha.getIPVersion()) {
-                return la.spanWithRange(ha);
+            if (low != null && high != null && low.getIPVersion() == high.getIPVersion()) {
+                return low.spanWithRange(high);
+            }
+
+            return null;
+        }
+
+        Matcher slashMatcher = SLASH_REGEX.matcher(token);
+        Matcher cidrMatcher = CIDR_REGEX.matcher(token);
+
+        if (slashMatcher.matches() && !cidrMatcher.matches()) {
+            IPAddress low = new IPAddressString(slashMatcher.group(1)).getAddress();
+            IPAddress high = new IPAddressString(slashMatcher.group(2)).getAddress();
+
+            if (low != null && high != null && low.getIPVersion() == high.getIPVersion()) {
+                return low.spanWithRange(high);
             }
 
             return null;

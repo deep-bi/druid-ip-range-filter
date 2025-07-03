@@ -21,6 +21,8 @@ package bi.deep.entity.array;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import bi.deep.entity.dimension.IPRangeArray;
+import bi.deep.entity.dimension.IPRangeArraySerializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;

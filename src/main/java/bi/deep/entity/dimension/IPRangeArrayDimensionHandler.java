@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
 import java.io.File;
 import java.util.Comparator;
@@ -33,11 +33,11 @@ import org.apache.druid.segment.selector.settable.SettableColumnValueSelector;
 import org.apache.druid.segment.selector.settable.SettableObjectColumnValueSelector;
 import org.apache.druid.segment.writeout.SegmentWriteOutMedium;
 
-public class IPRangeDimensionHandler implements DimensionHandler<IPRange, IPRange, IPRange> {
+public class IPRangeArrayDimensionHandler implements DimensionHandler<IPRangeArray, IPRangeArray, IPRangeArray> {
 
     private final String dimensionName;
 
-    public IPRangeDimensionHandler(String dimensionName) {
+    public IPRangeArrayDimensionHandler(String dimensionName) {
         this.dimensionName = dimensionName;
     }
 
@@ -48,12 +48,12 @@ public class IPRangeDimensionHandler implements DimensionHandler<IPRange, IPRang
 
     @Override
     public DimensionSchema getDimensionSchema(ColumnCapabilities capabilities) {
-        return new IPRangeDimensionSchema(getDimensionName());
+        return new IPRangeArrayDimensionSchema(getDimensionName());
     }
 
     @Override
-    public DimensionIndexer<IPRange, IPRange, IPRange> makeIndexer(boolean useMaxMemoryEstimates) {
-        return new IPRangeDimensionIndexer();
+    public DimensionIndexer<IPRangeArray, IPRangeArray, IPRangeArray> makeIndexer(boolean useMaxMemoryEstimates) {
+        return new IPRangeArrayDimensionIndexer();
     }
 
     @Override
@@ -65,21 +65,18 @@ public class IPRangeDimensionHandler implements DimensionHandler<IPRange, IPRang
             ProgressIndicator progress,
             File segmentBaseDir,
             Closer closer) {
-        return new IPRangeDimensionMergerV9(outputName, segmentWriteOutMedium);
+        return new IPRangeArrayDimensionMergerV9(outputName, segmentWriteOutMedium);
     }
 
     @Override
-    public int getLengthOfEncodedKeyComponent(IPRange dimVals) {
-        if (dimVals == null) {
-            return 0;
-        }
-
-        return dimVals.getLengthOfEncodedKeyComponent();
+    public int getLengthOfEncodedKeyComponent(IPRangeArray dimVals) {
+        return dimVals == null ? 0 : dimVals.getLengthOfEncodedKeyComponent();
     }
 
     @Override
     public Comparator<ColumnValueSelector> getEncodedValueSelectorComparator() {
-        return (s1, s2) -> IPRange.COMPARATOR.compare((IPRange) s1.getObject(), (IPRange) s2.getObject());
+        return (s1, s2) ->
+                IPRangeArray.COMPARATOR.compare((IPRangeArray) s1.getObject(), (IPRangeArray) s2.getObject());
     }
 
     @Override

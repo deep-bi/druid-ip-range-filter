@@ -16,20 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
+import javax.annotation.Nullable;
+import org.apache.druid.data.input.InputRow;
+import org.apache.druid.segment.serde.ComplexMetricExtractor;
 
-public class IPRangeSerializer extends JsonSerializer<IPRange> {
+public class IPRangeComplexMetricExtractor implements ComplexMetricExtractor {
     @Override
-    public void serialize(IPRange value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (value == null) {
-            gen.writeNull();
-        } else {
-            gen.writeString(value.toString());
-        }
+    public Class extractedClass() {
+        return IPRange.class;
+    }
+
+    @Nullable
+    @Override
+    public IPRange extractValue(InputRow inputRow, String fieldName) {
+        final Object input = inputRow.getRaw(fieldName);
+        return IPRange.from(input);
     }
 }

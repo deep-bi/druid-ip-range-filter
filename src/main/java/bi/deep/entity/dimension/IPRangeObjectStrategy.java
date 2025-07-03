@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
 import java.nio.ByteBuffer;
 import javax.annotation.Nullable;

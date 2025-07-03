@@ -18,13 +18,13 @@
  */
 package bi.deep.guice;
 
-import bi.deep.entity.IPRangeDimensionHandler;
-import bi.deep.entity.IPRangeDimensionSchema;
-import bi.deep.entity.IPRangeMatchingFilter;
-import bi.deep.entity.IPRangeSerde;
-import bi.deep.entity.array.IPRangeArrayDimensionHandler;
-import bi.deep.entity.array.IPRangeArrayDimensionSchema;
-import bi.deep.entity.array.IPRangeArraySerde;
+import bi.deep.entity.dimension.IPRangeArrayDimensionHandler;
+import bi.deep.entity.dimension.IPRangeArrayDimensionSchema;
+import bi.deep.entity.dimension.IPRangeArraySerde;
+import bi.deep.entity.dimension.IPRangeDimensionHandler;
+import bi.deep.entity.dimension.IPRangeDimensionSchema;
+import bi.deep.entity.dimension.IPRangeSerde;
+import bi.deep.filtering.ip.range.IPRangeMatchingFilter;
 import bi.deep.matching.IPRangeArrayFilteredDimensionSpec;
 import bi.deep.matching.IPRangeArrayFilteredVirtualColumn;
 import com.fasterxml.jackson.databind.Module;
@@ -38,7 +38,7 @@ import org.apache.druid.segment.DimensionHandlerUtils;
 import org.apache.druid.segment.column.ColumnType;
 import org.apache.druid.segment.serde.ComplexMetrics;
 
-public class IPAddressDimensionModule implements DruidModule {
+public class IPRangeDimensionModule implements DruidModule {
     public static final String TYPE_NAME = "ipRange";
     public static final String ARRAY_TYPE_NAME = "ipRangeArray";
     public static final ColumnType TYPE = ColumnType.ofComplex(TYPE_NAME);

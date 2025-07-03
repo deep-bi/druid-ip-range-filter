@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
+import bi.deep.entity.SerializationUtil;
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import inet.ipaddr.IPAddress;

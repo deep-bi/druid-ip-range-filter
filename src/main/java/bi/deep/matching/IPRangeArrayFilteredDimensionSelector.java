@@ -20,7 +20,7 @@ package bi.deep.matching;
 
 import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 
-import bi.deep.entity.array.IPRangeArray;
+import bi.deep.entity.dimension.IPRangeArray;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.format.IPAddressRange;
 import java.util.List;

@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity.array;
+package bi.deep.entity.dimension;
 
-import bi.deep.guice.IPAddressDimensionModule;
+import bi.deep.guice.IPRangeDimensionModule;
 import org.apache.druid.segment.data.ObjectStrategy;
 import org.apache.druid.segment.serde.ComplexColumnSerializer;
 import org.apache.druid.segment.serde.ComplexMetricExtractor;
@@ -28,12 +28,12 @@ import org.apache.druid.segment.writeout.SegmentWriteOutMedium;
 public class IPRangeArraySerde extends ComplexMetricSerde {
     @Override
     public String getTypeName() {
-        return IPAddressDimensionModule.ARRAY_TYPE_NAME;
+        return IPRangeDimensionModule.ARRAY_TYPE_NAME;
     }
 
     @Override
     public ComplexMetricExtractor getExtractor() {
-        return new IPRangeArrayComplexMetricExtractor();
+        return new IPRangeArrayDimensionSchema.IPRangeArrayComplexMetricExtractor();
     }
 
     @Override

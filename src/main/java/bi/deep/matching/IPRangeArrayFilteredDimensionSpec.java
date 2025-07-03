@@ -18,7 +18,7 @@
  */
 package bi.deep.matching;
 
-import bi.deep.guice.IPAddressDimensionModule;
+import bi.deep.guice.IPRangeDimensionModule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -29,7 +29,7 @@ import org.apache.druid.query.extraction.ExtractionFn;
 import org.apache.druid.segment.DimensionSelector;
 import org.apache.druid.segment.column.ColumnType;
 
-@JsonTypeName("ip-range-array-filtered-spec")
+@JsonTypeName("ip-filtered-spec")
 public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
     public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x6F;
     private final String name;
@@ -72,7 +72,7 @@ public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
 
     @Override
     public ColumnType getOutputType() {
-        return IPAddressDimensionModule.ARRAY_TYPE;
+        return IPRangeDimensionModule.ARRAY_TYPE;
     }
 
     @Override

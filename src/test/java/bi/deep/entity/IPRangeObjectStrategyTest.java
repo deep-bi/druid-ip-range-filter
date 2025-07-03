@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bi.deep.entity.dimension.IPRange;
+import bi.deep.entity.dimension.IPRangeObjectStrategy;
 import inet.ipaddr.format.IPAddressRange;
 import java.nio.ByteBuffer;
 import java.util.stream.Stream;

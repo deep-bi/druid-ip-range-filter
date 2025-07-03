@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
-import bi.deep.guice.IPAddressDimensionModule;
+import bi.deep.guice.IPRangeDimensionModule;
 import javax.annotation.Nullable;
 import org.apache.druid.collections.bitmap.BitmapFactory;
 import org.apache.druid.collections.bitmap.MutableBitmap;
@@ -101,7 +101,7 @@ public class IPRangeDimensionIndexer implements DimensionIndexer<IPRange, IPRang
 
     @Override
     public ColumnCapabilities getColumnCapabilities() {
-        return new ColumnCapabilitiesImpl().setType(IPAddressDimensionModule.TYPE);
+        return new ColumnCapabilitiesImpl().setType(IPRangeDimensionModule.TYPE);
     }
 
     @Override

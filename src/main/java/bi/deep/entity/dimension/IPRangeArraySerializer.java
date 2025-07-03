@@ -16,30 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
-import bi.deep.guice.IPAddressDimensionModule;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.druid.data.input.impl.DimensionSchema;
-import org.apache.druid.segment.column.ColumnType;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import inet.ipaddr.format.IPAddressRange;
+import java.io.IOException;
 
-@JsonTypeName(IPAddressDimensionModule.TYPE_NAME)
-public class IPRangeDimensionSchema extends DimensionSchema {
-
-    @JsonCreator
-    public IPRangeDimensionSchema(@JsonProperty("name") String name) {
-        super(name, MultiValueHandling.SORTED_ARRAY, true);
-    }
-
+public class IPRangeArraySerializer extends JsonSerializer<IPRangeArray> {
     @Override
-    public String getTypeName() {
-        return IPAddressDimensionModule.TYPE_NAME;
-    }
+    public void serialize(IPRangeArray value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeStartArray();
 
-    @Override
-    public ColumnType getColumnType() {
-        return IPAddressDimensionModule.TYPE;
+        for (IPAddressRange ip : value.getAddressRanges()) {
+            gen.writeString(ip.toString());
+        }
+        gen.writeEndArray();
     }
 }

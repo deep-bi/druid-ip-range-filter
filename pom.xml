@@ -70,6 +70,8 @@
   </dependencies>
 
   <build>
+    <finalName>${project.artifactId}-${project.version}</finalName>
+
     <plugins>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -183,7 +185,6 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <finalName>${project.artifactId}-${project.version}</finalName>
               <tarLongFileMode>posix</tarLongFileMode>
               <descriptors>
                 <descriptor>src/assembly/assembly.xml</descriptor>

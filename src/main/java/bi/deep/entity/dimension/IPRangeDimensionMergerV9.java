@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bi.deep.entity;
+package bi.deep.entity.dimension;
 
-import bi.deep.guice.IPAddressDimensionModule;
+import bi.deep.guice.IPRangeDimensionModule;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -53,7 +53,7 @@ public class IPRangeDimensionMergerV9 implements DimensionMergerV9 {
                 .setValueType(ValueType.COMPLEX)
                 .setHasMultipleValues(false)
                 .addSerde(ComplexColumnPartSerde.serializerBuilder()
-                        .withTypeName(IPAddressDimensionModule.TYPE_NAME)
+                        .withTypeName(IPRangeDimensionModule.TYPE_NAME)
                         .withDelegate(serializer)
                         .build())
                 .build();
