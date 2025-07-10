@@ -81,7 +81,7 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
         }
 
         List<IPAddressRange> addressRanges =
-                rangesToMatch.stream().filter(value::match).collect(Collectors.toList());
+                rangesToMatch.stream().filter(value::contains).collect(Collectors.toList());
         return addressRanges.isEmpty() ? null : new IPRangeArray(addressRanges);
     }
 

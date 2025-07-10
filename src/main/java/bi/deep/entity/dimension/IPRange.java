@@ -28,6 +28,8 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.druid.error.InvalidInput;
 import org.apache.druid.java.util.common.IAE;
 
 @JsonSerialize(using = IPRangeSerializer.class)
@@ -41,23 +43,25 @@ public class IPRange implements Serializable, Comparable<IPRange> {
     }
 
     public static IPRange fromString(String val) {
-        return new IPRange(IPRangeUtil.fromString(val));
+        if (StringUtils.isBlank(val)) {
+            throw InvalidInput.exception("Range cannot be null or empty");
+        }
+
+        IPAddressRange range = IPRangeUtil.fromString(val);
+
+        if (range == null) {
+            throw InvalidInput.exception("Invalid input");
+        }
+
+        return new IPRange(range);
     }
 
     public IPAddressRange getAddressRange() {
         return addressRange;
     }
 
-    public boolean match(IPAddress value) {
-        if (value == null) {
-            return false;
-        }
-
-        if (addressRange != null) {
-            return addressRange.contains(value);
-        }
-
-        return false;
+    public boolean contains(IPAddress value) {
+        return value != null && addressRange != null && addressRange.contains(value);
     }
 
     @Override

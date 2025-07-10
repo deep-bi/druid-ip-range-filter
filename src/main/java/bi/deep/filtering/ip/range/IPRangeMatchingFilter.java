@@ -36,7 +36,7 @@ import org.apache.druid.query.filter.DimFilter;
 import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
-@JsonTypeName("ip_match")
+@JsonTypeName("ip-match")
 public class IPRangeMatchingFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x53;
     private final String dimension;

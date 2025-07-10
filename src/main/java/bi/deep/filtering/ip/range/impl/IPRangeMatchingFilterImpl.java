@@ -108,7 +108,7 @@ public class IPRangeMatchingFilterImpl implements Filter {
             return object -> {
                 if (object instanceof IPRangeArray) {
                     IPRangeArray ipRange = (IPRangeArray) object;
-                    return DruidPredicateMatch.of(ipRange.match(ips));
+                    return DruidPredicateMatch.of(ipRange.contains(ips));
                 }
 
                 return DruidPredicateMatch.of(false);

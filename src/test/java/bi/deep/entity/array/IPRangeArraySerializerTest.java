@@ -45,13 +45,9 @@ class IPRangeArraySerializerTest {
                 "2404:6800:4003:c03::/64",
                 "172.16.0.5-172.16.0.20",
                 "2001:0db8:85a3::8a2e:0370:1000-2001:0db8:85a3::8a2e:0370:9000"));
-
-        // Act
         String json = mapper.writeValueAsString(array);
-
-        // Assert
         assertNotNull(json);
-        System.out.println(json);
+
         assertEquals(
                 "[\"172.16.0.5 -> 172.16.0.20\",\"2001:db8:85a3::8a2e:370:1000 -> 2001:db8:85a3::8a2e:370:9000\",\"48.146.23.142\",\"2404:6800:4003:c03::/64\",\"e3e7:682:c209:4cac:629f:6fbf:d82c:7cd\"]",
                 json);

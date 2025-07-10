@@ -28,12 +28,6 @@ import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
 import inet.ipaddr.ipv4.IPv4Address;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.druid.common.config.NullHandling;
-import org.apache.druid.java.util.common.IAE;
-
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +41,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.druid.common.config.NullHandling;
+import org.apache.druid.java.util.common.IAE;
 
 public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

@@ -66,7 +66,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return addressRanges;
     }
 
-    public boolean match(IPAddress address) {
+    public boolean contains(IPAddress address) {
         for (IPAddressRange range : addressRanges) {
             if (range.getLower().compareTo(address) > 0) {
                 return false;
@@ -80,7 +80,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return false;
     }
 
-    public boolean match(SortedSet<IPAddress> addresses) {
+    public boolean contains(SortedSet<IPAddress> addresses) {
         Iterator<IPAddressRange> rangeIter = addressRanges.iterator();
         Iterator<IPAddress> addressIter = addresses.iterator();
 
