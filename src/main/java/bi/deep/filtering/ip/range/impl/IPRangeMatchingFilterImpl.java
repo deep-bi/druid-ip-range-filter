@@ -20,6 +20,7 @@ package bi.deep.filtering.ip.range.impl;
 
 import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 
+import bi.deep.entity.dimension.IPRange;
 import bi.deep.entity.dimension.IPRangeArray;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
@@ -63,7 +64,7 @@ public class IPRangeMatchingFilterImpl implements Filter {
 
     @Override
     public ValueMatcher makeMatcher(ColumnSelectorFactory factory) {
-        return Filters.makeValueMatcher(factory, column, new MyPredicateFactory(ips));
+        return Filters.makeValueMatcher(factory, column, new MatchPredicateFactory(ips));
     }
 
     @Override
@@ -71,10 +72,10 @@ public class IPRangeMatchingFilterImpl implements Filter {
         return ImmutableSet.of(column);
     }
 
-    private static class MyPredicateFactory implements DruidPredicateFactory {
+    private static class MatchPredicateFactory implements DruidPredicateFactory {
         private final SortedSet<IPAddress> ips = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
 
-        public MyPredicateFactory(List<IPAddress> ips) {
+        public MatchPredicateFactory(List<IPAddress> ips) {
             this.ips.addAll(ips);
         }
 
@@ -106,6 +107,10 @@ public class IPRangeMatchingFilterImpl implements Filter {
         @Override
         public DruidObjectPredicate<Object> makeObjectPredicate() {
             return object -> {
+                if (object instanceof IPRange) {
+                    IPRange ipRange = (IPRange) object;
+                    return DruidPredicateMatch.of(ipRange.contains(ips));
+                }
                 if (object instanceof IPRangeArray) {
                     IPRangeArray ipRange = (IPRangeArray) object;
                     return DruidPredicateMatch.of(ipRange.contains(ips));

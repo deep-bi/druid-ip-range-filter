@@ -26,8 +26,11 @@ import inet.ipaddr.format.IPAddressRange;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.SortedSet;
 import javax.annotation.Nullable;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.error.InvalidInput;
 import org.apache.druid.java.util.common.IAE;
@@ -62,6 +65,32 @@ public class IPRange implements Serializable, Comparable<IPRange> {
 
     public boolean contains(IPAddress value) {
         return value != null && addressRange != null && addressRange.contains(value);
+    }
+
+    public boolean contains(SortedSet<IPAddress> addresses) {
+        if (addressRange == null || CollectionUtils.isEmpty(addresses)) {
+            return false;
+        }
+
+        Iterator<IPAddress> addressIter = addresses.iterator();
+        IPAddress address = addressIter.next();
+        IPAddress lower = addressRange.getLower();
+
+        while (true) {
+            int cmp = address.compareTo(lower);
+
+            if (cmp < 0) {
+                if (addressIter.hasNext()) {
+                    address = addressIter.next();
+                } else {
+                    break;
+                }
+            } else {
+                return addressRange.contains(address);
+            }
+        }
+
+        return false;
     }
 
     @Override

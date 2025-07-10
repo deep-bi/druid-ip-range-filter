@@ -20,6 +20,7 @@ package bi.deep.matching;
 
 import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 
+import bi.deep.entity.dimension.IPRange;
 import bi.deep.entity.dimension.IPRangeArray;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.format.IPAddressRange;
@@ -39,11 +40,10 @@ import org.apache.druid.segment.data.IndexedInts;
 import org.apache.druid.segment.data.ZeroIndexedInts;
 
 public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSelector {
-    protected final ColumnValueSelector<IPRangeArray> columnSelector;
+    protected final ColumnValueSelector columnSelector;
     private final SortedSet<IPAddress> rangesToMatch = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
 
-    public IPRangeArrayFilteredDimensionSelector(
-            ColumnValueSelector<IPRangeArray> columnSelector, List<IPAddress> rangesToMatch) {
+    public IPRangeArrayFilteredDimensionSelector(ColumnValueSelector columnSelector, List<IPAddress> rangesToMatch) {
         this.columnSelector = columnSelector;
         this.rangesToMatch.addAll(rangesToMatch);
     }
@@ -74,15 +74,27 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
     @Nullable
     @Override
     public IPRangeArray getObject() {
-        IPRangeArray value = columnSelector.getObject();
+        Object value = columnSelector.getObject();
 
         if (value == null) {
             return null;
         }
 
-        List<IPAddressRange> addressRanges =
-                rangesToMatch.stream().filter(value::contains).collect(Collectors.toList());
-        return addressRanges.isEmpty() ? null : new IPRangeArray(addressRanges);
+        if (value instanceof IPRangeArray) {
+            IPRangeArray rangeArray = (IPRangeArray) value;
+            List<IPAddressRange> addressRanges =
+                    rangesToMatch.stream().filter(rangeArray::contains).collect(Collectors.toList());
+            return addressRanges.isEmpty() ? null : new IPRangeArray(addressRanges);
+        }
+
+        if (value instanceof IPRange) {
+            IPRange rangeArray = (IPRange) value;
+            List<IPAddressRange> addressRanges =
+                    rangesToMatch.stream().filter(rangeArray::contains).collect(Collectors.toList());
+            return addressRanges.isEmpty() ? null : new IPRangeArray(addressRanges);
+        }
+
+        return null;
     }
 
     @Override
