@@ -60,7 +60,7 @@ public class IPRangeArrayDimensionMergerV9 implements DimensionMergerV9 {
     }
 
     @Override
-    public void writeMergedValueDictionary(List<IndexableAdapter> adapters) throws IOException {}
+    public void writeMergedValueDictionary(List<IndexableAdapter> adapters) {}
 
     @Override
     public ColumnValueSelector convertSortedSegmentRowValuesToMergedRowValues(
@@ -74,7 +74,7 @@ public class IPRangeArrayDimensionMergerV9 implements DimensionMergerV9 {
     }
 
     @Override
-    public void writeIndexes(@Nullable List<IntBuffer> segmentRowNumConversions) throws IOException {}
+    public void writeIndexes(@Nullable List<IntBuffer> segmentRowNumConversions) {}
 
     @Override
     public boolean hasOnlyNulls() {

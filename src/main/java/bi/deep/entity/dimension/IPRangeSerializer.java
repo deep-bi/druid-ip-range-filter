@@ -26,10 +26,10 @@ import java.io.IOException;
 public class IPRangeSerializer extends JsonSerializer<IPRange> {
     @Override
     public void serialize(IPRange value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (value == null) {
-            gen.writeNull();
-        } else {
+        if (value != null) {
             gen.writeString(value.toString());
+        } else {
+            gen.writeNull();
         }
     }
 }

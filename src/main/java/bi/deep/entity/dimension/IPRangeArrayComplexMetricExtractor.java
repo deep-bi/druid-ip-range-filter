@@ -18,31 +18,20 @@
  */
 package bi.deep.entity.dimension;
 
-import bi.deep.guice.IPRangeDimensionModule;
-import org.apache.druid.segment.data.ObjectStrategy;
-import org.apache.druid.segment.serde.ComplexColumnSerializer;
+import javax.annotation.Nullable;
+import org.apache.druid.data.input.InputRow;
 import org.apache.druid.segment.serde.ComplexMetricExtractor;
-import org.apache.druid.segment.serde.ComplexMetricSerde;
-import org.apache.druid.segment.writeout.SegmentWriteOutMedium;
 
-public class IPRangeArraySerde extends ComplexMetricSerde {
+public class IPRangeArrayComplexMetricExtractor implements ComplexMetricExtractor {
     @Override
-    public String getTypeName() {
-        return IPRangeDimensionModule.ARRAY_TYPE_NAME;
+    public Class extractedClass() {
+        return IPRangeArray.class;
     }
 
+    @Nullable
     @Override
-    public ComplexMetricExtractor getExtractor() {
-        return new IPRangeArrayComplexMetricExtractor();
-    }
-
-    @Override
-    public ObjectStrategy<IPRangeArray> getObjectStrategy() {
-        return IPRangeArrayObjectStrategy.INSTANCE;
-    }
-
-    @Override
-    public ComplexColumnSerializer getSerializer(SegmentWriteOutMedium segmentWriteOutMedium, String column) {
-        return ComplexColumnSerializer.create(segmentWriteOutMedium, column, getObjectStrategy());
+    public IPRangeArray extractValue(InputRow inputRow, String fieldName) {
+        final Object input = inputRow.getRaw(fieldName);
+        return IPRangeArray.from(input);
     }
 }

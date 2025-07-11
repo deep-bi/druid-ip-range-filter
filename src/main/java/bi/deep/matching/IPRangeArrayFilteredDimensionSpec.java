@@ -31,7 +31,7 @@ import org.apache.druid.segment.column.ColumnType;
 
 @JsonTypeName("ip-filtered-spec")
 public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
-    public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x6F;
+    public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x6;
     private final String name;
     private final DimensionSpec delegate;
     private final Set<String> ips;

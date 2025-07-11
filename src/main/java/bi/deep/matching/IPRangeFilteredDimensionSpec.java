@@ -34,7 +34,7 @@ import org.apache.druid.segment.column.ColumnType;
 
 @JsonTypeName("ip-range-filtered-spec")
 public class IPRangeFilteredDimensionSpec implements DimensionSpec {
-    public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x6;
+    public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x5;
     private final String name;
     private final DimensionSpec delegate;
     private final List<IPAddress> ips;

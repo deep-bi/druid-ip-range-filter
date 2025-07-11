@@ -41,7 +41,7 @@ import org.apache.druid.segment.column.ColumnType;
 @JsonTypeName("ip-filtered")
 public class IPRangeArrayFilteredVirtualColumn implements VirtualColumn {
 
-    public static final byte CACHE_TYPE_ID_IP_RANGE_VC = 0x15;
+    public static final byte CACHE_TYPE_ID_IP_RANGE_VC = 0x05;
     private final String name;
     private final DimensionSpec delegate;
     private final Set<String> ips;

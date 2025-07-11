@@ -21,14 +21,12 @@ package bi.deep.util;
 import bi.deep.entity.IPSetContents;
 import bi.deep.range.IPBoundedRange;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
 import inet.ipaddr.ipv4.IPv4Address;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +43,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
-import org.apache.druid.java.util.common.IAE;
 
 public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -202,18 +199,6 @@ public final class IPRangeUtil {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error converting to JSON", e);
         }
-    }
-
-    public static List<String> convertToList(String json) {
-        if (json.startsWith("[") && json.endsWith("]")) {
-            try {
-                return OBJECT_MAPPER.readValue(json, new TypeReference<List<String>>() {});
-            } catch (IOException e) {
-                throw new IAE("Failed to parse JSON array", e);
-            }
-        }
-
-        return Collections.singletonList(json);
     }
 
     public static List<IPAddress> mapStringsToIps(final Set<String> ips) {

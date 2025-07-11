@@ -18,6 +18,7 @@
  */
 package bi.deep.entity.dimension;
 
+import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,6 +29,8 @@ import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.LongStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -87,5 +90,33 @@ class IPRangeArrayTest {
         assertTrue(LongStream.range(0, count).mapToObj(refAddress::increment).noneMatch(ipRangeArray::contains));
         // More than Range
         assertTrue(LongStream.range(1, count).mapToObj(upper::increment).noneMatch(ipRangeArray::contains));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"39.181.2.192", "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f"})
+    void rangeContainsTestList(String addressStr) {
+        final long count = 10;
+        final IPAddress refAddress = new IPAddressString(addressStr).getAddress();
+        final IPAddress lower = refAddress.increment(count);
+        final IPAddress upper = lower.increment(count);
+        final IPRangeArray ipRangeArray =
+                IPRangeArray.fromArray(ImmutableList.of(String.format("%s-%s", lower, upper)));
+
+        assertNotNull(ipRangeArray);
+        assertTrue(ipRangeArray.contains(lower));
+        assertTrue(ipRangeArray.contains(upper));
+
+        // Within Range
+        assertTrue(LongStream.range(0, count).mapToObj(lower::increment).allMatch(ipRangeArray::contains));
+        // Lower than Range
+        assertTrue(LongStream.range(0, count).mapToObj(refAddress::increment).noneMatch(ipRangeArray::contains));
+        // More than Range
+        assertTrue(LongStream.range(1, count).mapToObj(upper::increment).noneMatch(ipRangeArray::contains));
+
+        SortedSet<IPAddress> searchSet = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
+        searchSet.add(refAddress.increment(count - 1));
+        searchSet.add(upper.increment(1));
+
+        assertFalse(ipRangeArray.contains(searchSet));
     }
 }

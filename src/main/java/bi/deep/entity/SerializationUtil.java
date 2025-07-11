@@ -88,13 +88,14 @@ public final class SerializationUtil {
     }
 
     private static IPAddress parseAddress(int version, byte[] bytes) {
-        if (version == IPv4Address.BYTE_COUNT) {
-            return new IPv4Address(bytes);
-        } else if (version == IPv6Address.BYTE_COUNT) {
-            return new IPv6Address(bytes);
+        switch (version) {
+            case IPv4Address.BYTE_COUNT:
+                return new IPv4Address(bytes);
+            case IPv6Address.BYTE_COUNT:
+                return new IPv6Address(bytes);
+            default:
+                throw new IllegalArgumentException("Unknown IP version");
         }
-
-        throw new IllegalArgumentException("Unknown IP version");
     }
 
     private static void serialize(IPAddressRange range, DataOutputStream out) throws IOException {

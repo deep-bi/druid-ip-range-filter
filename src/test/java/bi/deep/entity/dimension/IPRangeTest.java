@@ -18,14 +18,18 @@
  */
 package bi.deep.entity.dimension;
 
+import static inet.ipaddr.Address.ADDRESS_LOW_VALUE_COMPARATOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.common.collect.ImmutableSortedSet;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.LongStream;
 import org.apache.druid.error.DruidException;
 import org.junit.jupiter.api.Test;
@@ -81,6 +85,42 @@ class IPRangeTest {
         assertTrue(LongStream.range(0, count).mapToObj(refAddress::increment).noneMatch(ipV4Range::contains));
         // More than Range
         assertTrue(LongStream.range(1, count).mapToObj(upper::increment).noneMatch(ipV4Range::contains));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"39.181.2.192", "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f"})
+    void rangeContainsWithList(String addressStr) {
+        final long count = 10;
+        final IPAddress refAddress = new IPAddressString(addressStr).getAddress();
+        final IPAddress lower = refAddress.increment(count);
+        final IPAddress upper = lower.increment(count);
+        final IPRange ipV4Range = IPRange.fromString(String.format("%s-%s", lower, upper));
+
+        assertNotNull(ipV4Range);
+        assertTrue(ipV4Range.contains(lower));
+        assertTrue(ipV4Range.contains(upper));
+
+        // Within Range
+        LongStream.range(0, count)
+                .mapToObj(lower::increment)
+                .map(ImmutableSortedSet::of)
+                .allMatch(ipV4Range::contains);
+        // Lower than Range
+        assertTrue(LongStream.range(0, count)
+                .mapToObj(refAddress::increment)
+                .map(ImmutableSortedSet::of)
+                .noneMatch(ipV4Range::contains));
+        // More than Range
+        assertTrue(LongStream.range(1, count)
+                .mapToObj(upper::increment)
+                .map(ImmutableSortedSet::of)
+                .noneMatch(ipV4Range::contains));
+
+        SortedSet<IPAddress> searchSet = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
+        searchSet.add(refAddress.increment(count - 1));
+        searchSet.add(upper.increment(1));
+
+        assertFalse(ipV4Range.contains(searchSet));
     }
 
     @Test

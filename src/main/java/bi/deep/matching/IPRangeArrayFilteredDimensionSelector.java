@@ -30,6 +30,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.druid.java.util.common.logger.Logger;
 import org.apache.druid.query.filter.DruidPredicateFactory;
 import org.apache.druid.query.filter.ValueMatcher;
 import org.apache.druid.query.monomorphicprocessing.RuntimeShapeInspector;
@@ -40,6 +41,7 @@ import org.apache.druid.segment.data.IndexedInts;
 import org.apache.druid.segment.data.ZeroIndexedInts;
 
 public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSelector {
+    private static final Logger log = new Logger(IPRangeFilteredDimensionSelector.class);
     protected final ColumnValueSelector columnSelector;
     private final SortedSet<IPAddress> rangesToMatch = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
 
@@ -63,7 +65,7 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
     @Override
     @Nonnull
     public ValueMatcher makeValueMatcher(@Nonnull DruidPredicateFactory predicateFactory) {
-        throw new UnsupportedOperationException("With Predicates");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -94,6 +96,7 @@ public class IPRangeArrayFilteredDimensionSelector extends AbstractDimensionSele
             return addressRanges.isEmpty() ? null : new IPRangeArray(addressRanges);
         }
 
+        log.warn("Expected either IPRange or IPRangeArray but found: {}", value.getClass());
         return null;
     }
 

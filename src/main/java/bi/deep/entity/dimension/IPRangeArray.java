@@ -91,25 +91,21 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         IPAddressRange range = rangeIter.next();
         IPAddress address = addressIter.next();
 
-        while (true) {
-            int cmp = address.compareTo(range.getLower());
-
-            if (cmp < 0) {
-                if (addressIter.hasNext()) {
-                    address = addressIter.next();
-                } else {
+        while (addressIter.hasNext() || address.compareTo(range.getLower()) < 0) {
+            if (address.compareTo(range.getLower()) < 0) {
+                if (!addressIter.hasNext()) {
                     break;
                 }
+                address = addressIter.next();
             } else {
                 if (range.contains(address)) {
                     return true;
                 }
 
-                if (rangeIter.hasNext()) {
-                    range = rangeIter.next();
-                } else {
+                if (!rangeIter.hasNext()) {
                     break;
                 }
+                range = rangeIter.next();
             }
         }
 

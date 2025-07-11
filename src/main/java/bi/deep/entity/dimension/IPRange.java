@@ -73,19 +73,12 @@ public class IPRange implements Serializable, Comparable<IPRange> {
         }
 
         Iterator<IPAddress> addressIter = addresses.iterator();
-        IPAddress address = addressIter.next();
         IPAddress lower = addressRange.getLower();
 
-        while (true) {
-            int cmp = address.compareTo(lower);
+        while (addressIter.hasNext()) {
+            IPAddress address = addressIter.next();
 
-            if (cmp < 0) {
-                if (addressIter.hasNext()) {
-                    address = addressIter.next();
-                } else {
-                    break;
-                }
-            } else {
+            if (address.compareTo(lower) >= 0) {
                 return addressRange.contains(address);
             }
         }

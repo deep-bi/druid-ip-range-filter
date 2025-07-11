@@ -22,11 +22,8 @@ import bi.deep.guice.IPRangeDimensionModule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import javax.annotation.Nullable;
-import org.apache.druid.data.input.InputRow;
 import org.apache.druid.data.input.impl.DimensionSchema;
 import org.apache.druid.segment.column.ColumnType;
-import org.apache.druid.segment.serde.ComplexMetricExtractor;
 
 @JsonTypeName(IPRangeDimensionModule.ARRAY_TYPE_NAME)
 public class IPRangeArrayDimensionSchema extends DimensionSchema {
@@ -44,19 +41,5 @@ public class IPRangeArrayDimensionSchema extends DimensionSchema {
     @Override
     public ColumnType getColumnType() {
         return IPRangeDimensionModule.ARRAY_TYPE;
-    }
-
-    public static class IPRangeArrayComplexMetricExtractor implements ComplexMetricExtractor {
-        @Override
-        public Class extractedClass() {
-            return IPRangeArray.class;
-        }
-
-        @Nullable
-        @Override
-        public IPRangeArray extractValue(InputRow inputRow, String fieldName) {
-            final Object input = inputRow.getRaw(fieldName);
-            return IPRangeArray.from(input);
-        }
     }
 }
