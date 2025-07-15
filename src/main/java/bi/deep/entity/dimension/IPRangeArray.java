@@ -40,7 +40,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.druid.java.util.common.IAE;
 
 @JsonSerialize(using = IPRangeArraySerializer.class)
-public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
+public class IPRangeArray implements Serializable, IPRangeHandler, Comparable<IPRangeArray> {
     public static final IPRangeArray EMPTY = new IPRangeArray(Collections.emptyList());
     public static final Comparator<IPRangeArray> COMPARATOR = Comparator.nullsFirst(IPRangeArray::compareTo);
     private final SortedSet<IPAddressRange> addressRanges;
@@ -80,6 +80,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return false;
     }
 
+    @Override
     public boolean contains(SortedSet<IPAddress> addresses) {
         Iterator<IPAddressRange> rangeIter = addressRanges.iterator();
         Iterator<IPAddress> addressIter = addresses.iterator();
@@ -154,6 +155,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return 0;
     }
 
+    @Override
     public byte[] toBytes() {
         try {
             return SerializationUtil.serialize(this);
@@ -185,6 +187,7 @@ public class IPRangeArray implements Serializable, Comparable<IPRangeArray> {
         return addressRanges == null || addressRanges.isEmpty();
     }
 
+    @Override
     public int getLengthOfEncodedKeyComponent() {
         if (isEmpty()) {
             return 0;

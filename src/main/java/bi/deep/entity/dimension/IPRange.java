@@ -36,7 +36,7 @@ import org.apache.druid.error.InvalidInput;
 import org.apache.druid.java.util.common.IAE;
 
 @JsonSerialize(using = IPRangeSerializer.class)
-public class IPRange implements Serializable, Comparable<IPRange> {
+public class IPRange implements Serializable, IPRangeHandler, Comparable<IPRange> {
     public static final IPRange EMPTY = new IPRange(null);
     public static final Comparator<IPRange> COMPARATOR = Comparator.nullsFirst(IPRange::compareTo);
     private final IPAddressRange addressRange;
@@ -67,6 +67,7 @@ public class IPRange implements Serializable, Comparable<IPRange> {
         return value != null && addressRange != null && addressRange.contains(value);
     }
 
+    @Override
     public boolean contains(SortedSet<IPAddress> addresses) {
         if (addressRange == null || CollectionUtils.isEmpty(addresses)) {
             return false;
@@ -115,6 +116,7 @@ public class IPRange implements Serializable, Comparable<IPRange> {
         return getAddressRange().compareTo(other.getAddressRange());
     }
 
+    @Override
     public byte[] toBytes() {
         try {
             return SerializationUtil.serialize(this);
@@ -142,6 +144,7 @@ public class IPRange implements Serializable, Comparable<IPRange> {
         }
     }
 
+    @Override
     public int getLengthOfEncodedKeyComponent() {
         return IPRangeUtil.getSize(addressRange);
     }

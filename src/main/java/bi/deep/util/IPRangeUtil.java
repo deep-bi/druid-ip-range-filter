@@ -61,28 +61,14 @@ public final class IPRangeUtil {
         Matcher dashMatcher = DASH_REGEX.matcher(token);
 
         if (dashMatcher.matches()) {
-            IPAddress low = new IPAddressString(dashMatcher.group(1)).getAddress();
-            IPAddress high = new IPAddressString(dashMatcher.group(2)).getAddress();
-
-            if (low != null && high != null && low.getIPVersion() == high.getIPVersion()) {
-                return low.spanWithRange(high);
-            }
-
-            return null;
+            return extractIPRange(dashMatcher);
         }
 
         Matcher slashMatcher = SLASH_REGEX.matcher(token);
         Matcher cidrMatcher = CIDR_REGEX.matcher(token);
 
         if (slashMatcher.matches() && !cidrMatcher.matches()) {
-            IPAddress low = new IPAddressString(slashMatcher.group(1)).getAddress();
-            IPAddress high = new IPAddressString(slashMatcher.group(2)).getAddress();
-
-            if (low != null && high != null && low.getIPVersion() == high.getIPVersion()) {
-                return low.spanWithRange(high);
-            }
-
-            return null;
+            return extractIPRange(slashMatcher);
         }
 
         return new IPAddressString(token).getAddress();
@@ -92,6 +78,17 @@ public final class IPRangeUtil {
         if (range == null) return 0;
 
         return range.getByteCount() == IPv4Address.BYTE_COUNT ? 20 : 44;
+    }
+
+    private static IPAddressRange extractIPRange(Matcher matcher) {
+        IPAddress low = new IPAddressString(matcher.group(1)).getAddress();
+        IPAddress high = new IPAddressString(matcher.group(2)).getAddress();
+
+        if (low != null && high != null && low.getIPVersion() == high.getIPVersion()) {
+            return low.spanWithRange(high);
+        }
+
+        return null;
     }
 
     private static Object parseToken(String data, Map<String, Object> cache) {
