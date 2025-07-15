@@ -38,8 +38,8 @@ import org.apache.druid.segment.column.ColumnCapabilities;
 import org.apache.druid.segment.column.ColumnCapabilitiesImpl;
 import org.apache.druid.segment.column.ColumnType;
 
-@JsonTypeName("ip-filtered")
-public class IPRangeArrayFilteredVirtualColumn implements VirtualColumn {
+@JsonTypeName("ip-native-filtered")
+public class IPNativeRangeArrayFilteredVirtualColumn implements VirtualColumn {
 
     public static final byte CACHE_TYPE_ID_IP_RANGE_VC = 0x05;
     private final String name;
@@ -47,7 +47,7 @@ public class IPRangeArrayFilteredVirtualColumn implements VirtualColumn {
     private final Set<String> ips;
 
     @JsonCreator
-    public IPRangeArrayFilteredVirtualColumn(
+    public IPNativeRangeArrayFilteredVirtualColumn(
             @JsonProperty("name") String name,
             @JsonProperty("delegate") DimensionSpec delegate,
             @JsonProperty("values") Set<String> ips) {

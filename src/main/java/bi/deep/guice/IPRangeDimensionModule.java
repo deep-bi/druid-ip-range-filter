@@ -24,9 +24,9 @@ import bi.deep.entity.dimension.IPRangeArraySerde;
 import bi.deep.entity.dimension.IPRangeDimensionHandler;
 import bi.deep.entity.dimension.IPRangeDimensionSchema;
 import bi.deep.entity.dimension.IPRangeSerde;
-import bi.deep.filtering.ip.range.IPRangeMatchingFilter;
-import bi.deep.matching.IPRangeArrayFilteredDimensionSpec;
-import bi.deep.matching.IPRangeArrayFilteredVirtualColumn;
+import bi.deep.filtering.ip.range.IPNativeRangeMatchingFilter;
+import bi.deep.matching.IPNativeRangeArrayFilteredVirtualColumn;
+import bi.deep.matching.IPNativeangeArrayFilteredDimensionSpec;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.annotations.VisibleForTesting;
@@ -54,9 +54,9 @@ public class IPRangeDimensionModule implements DruidModule {
         return Collections.singletonList(new SimpleModule(getClass().getSimpleName())
                 .registerSubtypes(IPRangeDimensionSchema.class)
                 .registerSubtypes(IPRangeArrayDimensionSchema.class)
-                .registerSubtypes(IPRangeMatchingFilter.class)
-                .registerSubtypes(IPRangeArrayFilteredDimensionSpec.class)
-                .registerSubtypes(IPRangeArrayFilteredVirtualColumn.class));
+                .registerSubtypes(IPNativeRangeMatchingFilter.class)
+                .registerSubtypes(IPNativeangeArrayFilteredDimensionSpec.class)
+                .registerSubtypes(IPNativeRangeArrayFilteredVirtualColumn.class));
     }
 
     @VisibleForTesting

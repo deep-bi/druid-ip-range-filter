@@ -29,15 +29,15 @@ import org.apache.druid.query.extraction.ExtractionFn;
 import org.apache.druid.segment.DimensionSelector;
 import org.apache.druid.segment.column.ColumnType;
 
-@JsonTypeName("ip-filtered-spec")
-public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
+@JsonTypeName("ip-native-filtered-spec")
+public class IPNativeangeArrayFilteredDimensionSpec implements DimensionSpec {
     public static final byte CACHE_TYPE_ID_IP_RANGE_DIM = 0x6;
     private final String name;
     private final DimensionSpec delegate;
     private final Set<String> ips;
 
     @JsonCreator
-    public IPRangeArrayFilteredDimensionSpec(
+    public IPNativeangeArrayFilteredDimensionSpec(
             @JsonProperty("name") String name,
             @JsonProperty("delegate") DimensionSpec delegate,
             @JsonProperty("values") Set<String> ips) {
@@ -97,7 +97,7 @@ public class IPRangeArrayFilteredDimensionSpec implements DimensionSpec {
 
     @Override
     public DimensionSpec withDimension(String newDimension) {
-        return new IPRangeArrayFilteredDimensionSpec(name, getDelegate().withDimension(newDimension), ips);
+        return new IPNativeangeArrayFilteredDimensionSpec(name, getDelegate().withDimension(newDimension), ips);
     }
 
     @Override

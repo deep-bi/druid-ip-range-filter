@@ -36,14 +36,15 @@ import org.apache.druid.query.filter.DimFilter;
 import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
-@JsonTypeName("ip-match")
-public class IPRangeMatchingFilter extends AbstractOptimizableDimFilter implements DimFilter {
+@JsonTypeName("ip_native_match")
+public class IPNativeRangeMatchingFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x53;
     private final String dimension;
     private final Set<String> ips;
 
     @JsonCreator
-    public IPRangeMatchingFilter(@JsonProperty("dimension") String dimension, @JsonProperty("values") Set<String> ips) {
+    public IPNativeRangeMatchingFilter(
+            @JsonProperty("dimension") String dimension, @JsonProperty("values") Set<String> ips) {
         this.dimension = Preconditions.checkNotNull(dimension, "dimension");
         if (CollectionUtils.isEmpty(ips)) {
             throw new IllegalArgumentException("values are not defined");
@@ -67,11 +68,11 @@ public class IPRangeMatchingFilter extends AbstractOptimizableDimFilter implemen
         if (this == o) {
             return true;
         }
-        if (!(o instanceof IPRangeMatchingFilter)) {
+        if (!(o instanceof IPNativeRangeMatchingFilter)) {
             return false;
         }
 
-        final IPRangeMatchingFilter that = (IPRangeMatchingFilter) o;
+        final IPNativeRangeMatchingFilter that = (IPNativeRangeMatchingFilter) o;
 
         return Objects.equals(dimension, that.dimension) && Objects.equals(ips, that.ips);
     }

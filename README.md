@@ -56,8 +56,8 @@ To use this feature, define your column types as follows:
     ```
 
 The following filters are available for use with these native types:
-1. **IPRangeMatchingFilter (`type = ip-match`)** â-- to match IP ranges directly
-2.	**IPRangeArrayFilteredVirtualColumn (`type = ip-filtered`)** â -- for use with virtual columns
+1. **IPNativeRangeMatchingFilter (`type = ip_native_match`)** ï¿½-- to match IP ranges directly
+2. **IPNativeRangeArrayFilteredVirtualColumn (`type = ip-native-filtered`)** ï¿½ -- for use with virtual columns
 
 ---
 
@@ -200,14 +200,14 @@ This filter is useful in network security and data analysis, where identifying r
 
 ```json
 {
-  "type": "ip-match",
+  "type": "ip_native_match",
   "dimension": "range",
   "values":  ["192.168.1.50", "8.8.8.9"]
 }
 ```
 
 #### Parameter Descriptions
-* `type`: should be `ip-match` as type.
+* `type`: should be `ip_native_match` as type.
 * `dimension`: Specifies the dimension (column) of type `Complex<ipRangeArray>`.
 * `values`: List of IP addresses to match against the stored ranges. Can include both IPv4 and IPv6.
 ---
@@ -248,19 +248,19 @@ This feature is useful in scenarios where you need to filter or validate IP addr
 * `values`: A list of IP addresses to check. Only IPs that exist in both this list and within the delegate column's range will be included in the output.
 
 ### Native Virtual Column Support
-Same as `ip-range-filtered`, for native `ipRangeArray` types, we can use `ip-filtered`.
+Same as `ip-range-filtered`, for native `ipRangeArray` types, we can use `ip-native-filtered`.
 
 **Example:**
 ```json
 {
-  "type": "ip-filtered",
+  "type": "ip-native-filtered",
   "name": "output-name",
   "delegate": "ips",
   "values": ["10.162.59.18", "10.161.12.13"]
 }
 ```
 #### Parameter Descriptions
-* `type`: must be `ip-filtered` as type.
+* `type`: must be `ip-native-filtered` as type.
 * `name`:  the name of the virtual column in the query results.
 * `delegate`: the name of the column of type `Complex<ipRangeArray>` to match against.
 * `values`: A list of IP addresses to check. Only IPs that exist in both this list and within the delegate column's range will be included in the output.

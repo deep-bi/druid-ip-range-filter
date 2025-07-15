@@ -35,6 +35,10 @@ import org.apache.druid.query.filter.DimFilter;
 import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
+/**
+ * @deprecated in favour of `ip-range-match`
+ */
+@Deprecated
 @JsonTypeName("ip_single_range")
 public class SingleTypeIPRangeFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x51;
