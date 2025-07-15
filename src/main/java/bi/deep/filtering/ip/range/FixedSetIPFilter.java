@@ -43,6 +43,10 @@ import org.apache.druid.query.filter.DimFilter;
 import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
+/**
+ * @deprecated in favour of `ip-range-match`
+ */
+@Deprecated
 @JsonTypeName("ip_fixed_range")
 public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x52;
@@ -65,7 +69,6 @@ public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements Di
         final SortedSet<IPAddress> addresses = getRanges().stream()
                 .map(this::map)
                 .filter(Objects::nonNull)
-                .sorted()
                 .collect(Collectors.toCollection(TreeSet::new));
         return new FixedSetIPFilterImpl(dimension, addresses);
     }

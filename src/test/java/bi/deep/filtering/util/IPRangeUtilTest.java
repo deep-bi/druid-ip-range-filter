@@ -18,7 +18,9 @@
  */
 package bi.deep.filtering.util;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bi.deep.entity.IPSetContents;
 import bi.deep.util.IPRangeUtil;

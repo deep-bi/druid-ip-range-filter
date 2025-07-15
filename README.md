@@ -6,7 +6,7 @@
 Apache Druid is a high-performance, column-oriented, distributed data store designed for fast analytics on large datasets.
 One of the powerful features of Druid is its filtering capabilities, which allow users to limit the data returned by queries based on specific criteria.
 
-This repository includes three custom filters designed to enhance IP address filtering capabilities within Druid:
+This repository includes four custom filters designed to enhance IP address filtering capabilities within Druid:
 
 1. **SingleTypeIPRangeFilter (`type = ip_single_range`)**
 2. **MultiRangeIPFilter (`type = ip_multi_range`)**
@@ -14,6 +14,50 @@ This repository includes three custom filters designed to enhance IP address fil
 4. **RangeMatchingIpFilter (`type = ip_range_match`)**
 
 These filters enable users to filter records based on IP address ranges and fixed sets of IPs, supporting both IPv4 and IPv6 formats.
+
+## Native Support
+
+This repository also includes native support for IP addresses, enabling faster filtering and virtual column functionality.
+To use this feature, define your column types as follows:
+
+1. **COMPLEX\<ipRange\> (`type: iprange`)**: For a single IP address, use the `iprange` type. It supports:
+   - `IPv4` or `IPv6` addresses
+   - `CIDR` notation
+   - `Lower`-`upper` or `lower`/`high` range formats
+   
+     **Example**:
+    ```json
+        {
+            "dimensionsSpec": {
+                "dimensions": [
+                  {
+                    "type": "iprange",
+                    "name": "ip_addresses"
+                  }
+                ]
+             }
+      }
+    ```
+   
+2. **COMPLEX\<ipRangeArray\> (`type: iprange`)**: For multiple IP addresses, use the `ipRangeArray` type, which accepts a list of iprange values.
+
+   **Example**:
+    ```json
+      {
+        "dimensionsSpec": {
+            "dimensions": [
+              {
+                "type": "ipRangeArray",
+                "name": "ipset_contents"
+              }
+            ]
+          }
+    }
+    ```
+
+The following filters are available for use with these native types:
+1. **IPNativeRangeMatchingFilter (`type = ip_native_match`)** �-- to match IP ranges directly
+2. **IPNativeRangeArrayFilteredVirtualColumn (`type = ip-native-filtered`)** � -- for use with virtual columns
 
 ---
 
@@ -142,6 +186,30 @@ This filter is useful in network security and data analysis, where identifying r
 * `values`: List of IP addresses to match against the stored ranges. Can include both IPv4 and IPv6.
 * `ignoreVersionMismatch`: When set to true, addresses that don’t match the defined IP type (IPv4 vs. IPv6) will be
   ignored (default: false).
+
+
+### 5. Native - IPRangeMatchingFilter
+*Description:**
+Same as `RangeMatchingIpFilter`, it enables filtering based on a provided list of IP addresses.
+This filter is useful when retrieving rows where the stored IP ranges contain the provided IPs.
+
+**Usage:**
+This filter is useful in network security and data analysis, where identifying records associated with specific IPs is essential.
+
+**Example:**
+
+```json
+{
+  "type": "ip_native_match",
+  "dimension": "range",
+  "values":  ["192.168.1.50", "8.8.8.9"]
+}
+```
+
+#### Parameter Descriptions
+* `type`: should be `ip_native_match` as type.
+* `dimension`: Specifies the dimension (column) of type `Complex<ipRangeArray>`.
+* `values`: List of IP addresses to match against the stored ranges. Can include both IPv4 and IPv6.
 ---
 
 ## How to Use These Filters
@@ -177,6 +245,24 @@ This feature is useful in scenarios where you need to filter or validate IP addr
 * `type`: must be `ip-range-filtered` as type.
 * `name`:  the name of the virtual column in the query results.
 * `delegate`: the name of the column containing IP ranges to match against.
+* `values`: A list of IP addresses to check. Only IPs that exist in both this list and within the delegate column's range will be included in the output.
+
+### Native Virtual Column Support
+Same as `ip-range-filtered`, for native `ipRangeArray` types, we can use `ip-native-filtered`.
+
+**Example:**
+```json
+{
+  "type": "ip-native-filtered",
+  "name": "output-name",
+  "delegate": "ips",
+  "values": ["10.162.59.18", "10.161.12.13"]
+}
+```
+#### Parameter Descriptions
+* `type`: must be `ip-native-filtered` as type.
+* `name`:  the name of the virtual column in the query results.
+* `delegate`: the name of the column of type `Complex<ipRangeArray>` to match against.
 * `values`: A list of IP addresses to check. Only IPs that exist in both this list and within the delegate column's range will be included in the output.
 
 ## How to Use These Virtual Column

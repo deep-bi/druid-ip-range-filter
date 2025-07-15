@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.IPAddressString;
+import inet.ipaddr.format.IPAddressRange;
+import inet.ipaddr.ipv4.IPv4Address;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.common.config.NullHandling;
@@ -51,6 +54,41 @@ public final class IPRangeUtil {
 
     private IPRangeUtil() {
         throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
+    }
+
+    @Nullable
+    public static IPAddressRange fromString(String token) {
+        Matcher dashMatcher = DASH_REGEX.matcher(token);
+
+        if (dashMatcher.matches()) {
+            return extractIPRange(dashMatcher);
+        }
+
+        Matcher slashMatcher = SLASH_REGEX.matcher(token);
+        Matcher cidrMatcher = CIDR_REGEX.matcher(token);
+
+        if (slashMatcher.matches() && !cidrMatcher.matches()) {
+            return extractIPRange(slashMatcher);
+        }
+
+        return new IPAddressString(token).getAddress();
+    }
+
+    public static int getSize(IPAddressRange range) {
+        if (range == null) return 0;
+
+        return range.getByteCount() == IPv4Address.BYTE_COUNT ? 20 : 44;
+    }
+
+    private static IPAddressRange extractIPRange(Matcher matcher) {
+        IPAddress low = new IPAddressString(matcher.group(1)).getAddress();
+        IPAddress high = new IPAddressString(matcher.group(2)).getAddress();
+
+        if (low != null && high != null && low.getIPVersion() == high.getIPVersion()) {
+            return low.spanWithRange(high);
+        }
+
+        return null;
     }
 
     private static Object parseToken(String data, Map<String, Object> cache) {
