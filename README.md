@@ -12,6 +12,8 @@ The extension includes:
 * Virtual Columns for dynamic filtering within queries.
 * Support for CIDR, explicit ranges (e.g., 192.168.1.10-192.168.1.20), and fixed sets of IP addresses.
 
+---
+
 ## String Dimension Functions
 
 ### **RangeMatchingIpFilter (`type = ip_range_match`)**
@@ -77,6 +79,8 @@ Parameters
 * `delegate`: Name of the column containing IP ranges to match against.
 * `values`: A list of IP addresses to filter. Only IPs that exist in both this list and within the delegate column's
   range will be included in the output.
+
+---
 
 ## Native Dimension Functions
 
@@ -178,6 +182,8 @@ Parameters
 * `values`: A list of IP addresses to filter. Only IPs that exist in both this list and within the delegate column's 
   range will be included in the output.
 
+---
+
 ## How to Use
 
 Using Filters
@@ -192,6 +198,8 @@ Using Virtual Columns
    JSON.
 2. Provide the delegate column and values.
 3. Execute the query against your Druid cluster. The filter will limit the results based on the specified IP conditions.
+
+---
 
 ## Build
 
