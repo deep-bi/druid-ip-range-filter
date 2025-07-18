@@ -58,13 +58,14 @@ jobs:
         with:
           tag_name: ${{ steps.get-version.outputs.content }}
           release_name: Release ${{ steps.get-version.outputs.content }}
-          draft: false
-          prerelease: false
+          draft: true
+          prerelease: true
 
       - name: Create IP Range Filter extensions artifact
         id: create-druid-ip-range-filter-artifact
         run: |
           mvn -f pom.xml clean package -DskipTests
+          mv target/*.tar.gz .
 
       - name: Upload IP Range Filter extensions release asset
         id: upload-druid-ip-range-filter-extension-release-asset
