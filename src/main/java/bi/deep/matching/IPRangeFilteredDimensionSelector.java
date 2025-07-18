@@ -65,8 +65,7 @@ public class IPRangeFilteredDimensionSelector extends AbstractDimensionSelector 
 
                 if (extractionResult.startsWith("[") && extractionResult.endsWith("]")) {
                     try {
-                        List<String> array =
-                                OBJECT_MAPPER.readValue(extractionResult, new TypeReference<List<String>>() {});
+                        List<String> array = OBJECT_MAPPER.readValue(extractionResult, new TypeReference<>() {});
                         return array.stream().anyMatch(x -> (includeUnknown && x == null) || Objects.equals(x, value));
                     } catch (IOException e) {
                         log.warn(e, "Failed to parse JSON array, returning false: %s", extractionResult);
@@ -97,8 +96,7 @@ public class IPRangeFilteredDimensionSelector extends AbstractDimensionSelector 
                 }
                 if (extractionResult.startsWith("[") && extractionResult.endsWith("]")) {
                     try {
-                        List<String> elements =
-                                OBJECT_MAPPER.readValue(extractionResult, new TypeReference<List<String>>() {});
+                        List<String> elements = OBJECT_MAPPER.readValue(extractionResult, new TypeReference<>() {});
                         return elements.stream()
                                 .anyMatch(x -> predicate.apply(x).matches(includeUnknown));
                     } catch (IOException e) {

@@ -21,6 +21,7 @@ package bi.deep.filtering.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bi.deep.entity.IPSetContents;
 import bi.deep.util.IPRangeUtil;
@@ -32,16 +33,9 @@ import inet.ipaddr.IPAddressString;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import org.apache.druid.common.config.NullHandling;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class IPRangeUtilTest {
-
-    @BeforeAll
-    static void setup() {
-        NullHandling.initializeForTests();
-    }
 
     @Test
     void testExtractIPRanges() {
@@ -54,7 +48,7 @@ class IPRangeUtilTest {
     void testGetMatchingIP_EmptyResult() {
         String input = "192.168.1.1";
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.0.0.1"));
-        assertEquals(NullHandling.sqlCompatible() ? null : "", IPRangeUtil.getMatchingIPs(input, ips));
+        assertNull(IPRangeUtil.getMatchingIPs(input, ips));
     }
 
     @Test
@@ -76,7 +70,7 @@ class IPRangeUtilTest {
     void testGetMatchingIPRanges_EmptyResult() {
         String input = "192.168.1.1-192.168.1.100";
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("10.0.0.1"));
-        assertEquals(NullHandling.sqlCompatible() ? null : "", IPRangeUtil.getMatchingIPs(input, ips));
+        assertNull(IPRangeUtil.getMatchingIPs(input, ips));
     }
 
     @Test
