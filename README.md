@@ -16,6 +16,33 @@ The extension includes:
 
 ## String Dimension Functions
 
+### **MultiRangeIPFilter (`type = ip_multi_range`)**
+
+`MultiRangeIPFilter` allows filtering of records containing a column with IP addresses based on the set of IP
+address ranges specified in the query. Specifically, a row is matched if the specified column contains an IP address
+that is within any of the ranges specified.
+
+**Example:**
+
+```json
+{
+  "type": "ip_multi_range",
+  "dimension": "ipColumn",
+  "ranges": [
+    "192.168.1.1/192.168.1.50",
+    "2001:0db8:85a3:0000:0000:8a2e:0370:7334/2001:0db8:85a3:0000:0000:8a2e:0370:7399"
+  ],
+  "ignoreVersionMismatch": false
+}
+```
+
+Parameter:
+* `type`: should be `ip_multi_range` as type.
+* `dimension`: Specifies the dimension (column) holding the IP address to be filtered.
+* `ranges`: Defines the IP ranges with the format `lower/upper`. We can put IPv4 and IPv6 in the same set.
+* `ignoreVersionMismatch`: When set to true, addresses that don’t match the defined IP type (IPv4 vs. IPv6) will be
+  ignored if the ranges contain only one IP type, and the provided address is of a different type (default: false).
+
 ### **RangeMatchingIpFilter (`type = ip_range_match`)**
 
 `RangeMatchingIpFilter` filters rows based on provided IP addresses by matching them against stored IPs, ranges, or

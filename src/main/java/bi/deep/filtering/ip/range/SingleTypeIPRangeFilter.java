@@ -33,8 +33,8 @@ import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
 /**
- * @deprecated This class is deprecated in favour of `ip-range-match` filter.
- * Please use {@link bi.deep.filtering.ip.range.RangeMatchingIPFilter} instead.
+ * @deprecated This class is deprecated in favour of `ip_multi_range` filter.
+ * Please use {@link bi.deep.filtering.ip.range.MultiRangeIPFilter} instead.
  */
 @Deprecated
 @JsonTypeName("ip_single_range")

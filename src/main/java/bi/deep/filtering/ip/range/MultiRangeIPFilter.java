@@ -34,11 +34,6 @@ import org.apache.druid.query.filter.DimFilter;
 import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
-/**
- * @deprecated This class is deprecated in favour of `ip-range-match` filter.
- * Please use {@link bi.deep.filtering.ip.range.RangeMatchingIPFilter} instead.
- */
-@Deprecated
 @JsonTypeName("ip_multi_range")
 public class MultiRangeIPFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x50;
