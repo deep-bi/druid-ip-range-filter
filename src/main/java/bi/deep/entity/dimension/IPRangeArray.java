@@ -89,7 +89,7 @@ public class IPRangeArray implements Serializable, IPRangeHandler, Comparable<IP
         IPAddressRange range = rangeIter.next();
         IPAddress address = addressIter.next();
 
-        while (addressIter.hasNext() || address.compareTo(range.getLower()) < 0) {
+        while (addressIter.hasNext() || address.compareTo(range.getLower()) <= 0) {
             if (address.compareTo(range.getLower()) < 0) {
                 if (!addressIter.hasNext()) {
                     break;
