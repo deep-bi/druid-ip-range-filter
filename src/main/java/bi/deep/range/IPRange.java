@@ -35,26 +35,50 @@ public class IPRange {
             throw InvalidInput.exception("Range cannot be null or empty");
         }
 
-        final String[] bounds = range.split(SEPARATOR);
+        range = range.trim();
 
-        if (bounds.length != 2) {
-            throw InvalidInput.exception(
-                    String.format("Range should include lower and upper bounds in format `lower%supper`", SEPARATOR));
+        IPAddress lower;
+        IPAddress upper;
+
+        if (range.contains(SEPARATOR)) {
+            String[] parts = range.split(SEPARATOR, 2);
+            if (parts.length != 2) {
+                throw InvalidInput.exception("Malformed range '%s'. Expected ip/prefix (CIDR) or lower/upper.", range);
+            }
+            if (parts[0].isEmpty() || parts[1].isEmpty()) {
+                throw InvalidInput.exception("Malformed range '%s'. Expected ip/prefix (CIDR) or lower/upper.", range);
+            }
+            if (StringUtils.isNumeric(parts[1])) { // CIDR
+                IPAddress cidr = new IPAddressString(range).getAddress();
+                if (cidr == null) {
+                    throw InvalidInput.exception("Malformed CIDR '%s'. Expected ip/prefix.", range);
+                }
+                IPAddress block = cidr.toPrefixBlock();
+                lower = block.getLower();
+                upper = block.getUpper();
+            } else { // lower/upper
+                lower = new IPAddressString(parts[0]).getAddress();
+                upper = new IPAddressString(parts[1]).getAddress();
+            }
+        } else {
+            lower = new IPAddressString(range).getAddress();
+            if (lower == null) {
+                throw InvalidInput.exception(
+                        "Malformed input '%s'. Expected IP address, ip/prefix (CIDR) or lower/upper.", range);
+            }
+            upper = lower;
         }
 
-        final IPAddress lower = new IPAddressString(bounds[0]).getAddress();
-        final IPAddress upper = new IPAddressString(bounds[1]).getAddress();
-
         if (lower == null) {
-            throw InvalidInput.exception("Invalid lower IP address");
+            throw InvalidInput.exception("Invalid lower IP '%s'.", range);
         }
 
         if (upper == null) {
-            throw InvalidInput.exception("Invalid upper IP address");
+            throw InvalidInput.exception("Invalid upper IP '%s'.", range);
         }
 
         if (!lower.getIPVersion().equals(upper.getIPVersion())) {
-            throw new IAE("Invalid IP type, it must be of the same IP type (IPv4 or IPv6)");
+            throw new IAE("IPv4/IPv6 mismatch: '%s' vs '%s'.", lower, upper);
         }
 
         this.addressRange = lower.spanWithRange(upper);
