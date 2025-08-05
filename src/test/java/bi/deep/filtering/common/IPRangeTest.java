@@ -26,9 +26,12 @@ import bi.deep.range.IPRange;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
 import org.apache.druid.error.DruidException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class IPRangeTest {
@@ -78,218 +81,130 @@ class IPRangeTest {
         assertTrue(LongStream.range(1, count).mapToObj(upper::increment).noneMatch(ipV4Range::contains));
     }
 
-    @Test
-    void testInvalidRangeWithNull() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange(null));
-        assertEquals("Range cannot be null or empty", exception.getMessage());
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("parseCases")
+    void parses(ParseCase c) {
+        if (c.ex == null) {
+            assertDoesNotThrow(() -> new IPRange(c.in));
+        } else {
+            Throwable ex = assertThrows(c.ex, () -> new IPRange(c.in));
+            assertEquals(c.msg, ex.getMessage());
+        }
     }
 
-    @Test
-    void testInvalidRangeWithEmpty() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange(""));
-        assertEquals("Range cannot be null or empty", exception.getMessage());
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("containsCases")
+    void containsChecks(ContainsCase c) {
+        IPRange r = new IPRange(c.range);
+        IPAddress a = new IPAddressString(c.addr).getAddress();
+        assertEquals(c.expected, r.contains(a));
     }
 
-    @Test
-    void testInvalidRangeWithInvalidString() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("invalidLowerIP/0.0.0.0"));
-        assertEquals("Invalid lower IP 'invalidLowerIP/0.0.0.0'.", exception.getMessage());
+    static Stream<ParseCase> parseCases()
+    {
+        return Stream.of(
+            ParseCase.err(null, DruidException.class, "Range cannot be null or empty"),
+            ParseCase.err("", DruidException.class, "Range cannot be null or empty"),
+
+            ParseCase.err("invalidLowerIP/0.0.0.0", DruidException.class, "Invalid lower IP 'invalidLowerIP/0.0.0.0'."),
+            ParseCase.err("0.0.0.0/invalidUpperIP", DruidException.class, "Invalid upper IP '0.0.0.0/invalidUpperIP'."),
+
+            ParseCase.err("0.0.0.0-127.0.1.0", DruidException.class,
+                          "Malformed input '0.0.0.0-127.0.1.0'. Expected IP address, ip/prefix (CIDR) or lower/upper."
+            ),
+            ParseCase.err("999.999.999.999", DruidException.class,
+                          "Malformed input '999.999.999.999'. Expected IP address, ip/prefix (CIDR) or lower/upper."
+            ),
+
+            ParseCase.err("10.0.0.1/", DruidException.class,
+                          "Malformed range '10.0.0.1/'. Expected ip/prefix (CIDR) or lower/upper."
+            ),
+            ParseCase.err("/24", DruidException.class,
+                          "Malformed range '/24'. Expected ip/prefix (CIDR) or lower/upper."
+            ),
+
+            ParseCase.err(
+                "2001:db8::/129",
+                DruidException.class,
+                "Malformed CIDR '2001:db8::/129'. Expected ip/prefix."
+            ),
+            ParseCase.err("10.0.0.0/33", DruidException.class, "Malformed CIDR '10.0.0.0/33'. Expected ip/prefix."),
+
+            ParseCase.err("10.0.0.1/::1", IllegalArgumentException.class, "IPv4/IPv6 mismatch: '10.0.0.1' vs '::1'."),
+
+            ParseCase.ok("192.0.2.5"),
+            ParseCase.ok("2001:db8::1"),
+            ParseCase.ok("10.0.0.0/24"),
+            ParseCase.ok("2001:db8::/48"),
+            ParseCase.ok("10.0.0.1/10.0.0.20"),
+            ParseCase.ok("0.0.0.0/0"),
+            ParseCase.ok("255.255.255.255/32"),
+            ParseCase.ok("::/0"),
+            ParseCase.ok("2001:db8::1/128"),
+            ParseCase.ok("  10.1.1.1  "),
+            ParseCase.ok("2001:db8::1/2001:db8::ff"),
+            ParseCase.ok("10.0.0.1/10.0.0.1")
+        );
     }
 
-    @Test
-    void testInvalidRangeWithInvalidUpperString() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("0.0.0.0/invalidUpperIP"));
-        assertEquals("Invalid upper IP '0.0.0.0/invalidUpperIP'.", exception.getMessage());
+    static Stream<ContainsCase> containsCases() {
+        return Stream.of(
+            // single
+            ContainsCase.of("192.0.2.5", "192.0.2.5", true),
+            ContainsCase.of("192.0.2.5", "192.0.2.6", false),
+
+            // CIDR
+            ContainsCase.of("10.0.0.0/24", "10.0.0.128", true),
+            ContainsCase.of("10.0.0.0/24", "10.0.1.1",   false),
+
+            // explicit range (boundaries + middle)
+            ContainsCase.of("10.0.0.5/10.0.0.10", "10.0.0.5",  true),
+            ContainsCase.of("10.0.0.5/10.0.0.10", "10.0.0.10", true),
+            ContainsCase.of("10.0.0.5/10.0.0.10", "10.0.0.8",  true),
+            ContainsCase.of("10.0.0.5/10.0.0.10", "10.0.0.4",  false),
+            ContainsCase.of("10.0.0.5/10.0.0.10", "10.0.0.11", false),
+            ContainsCase.of("10.0.0.10/10.0.0.5", "10.0.0.7",  true), // reversed order
+
+            // IPv6 range
+            ContainsCase.of("2001:db8::1/2001:db8::ff", "2001:db8::80", true),
+            ContainsCase.of("2001:db8::1/2001:db8::ff", "2001:db8:1::1", false)
+        );
     }
 
-    @Test
-    void testInvalidRangeWithInvalidSeparator() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("0.0.0.0-127.0.1.0"));
-        assertEquals(
-                "Malformed input '0.0.0.0-127.0.1.0'. Expected IP address, ip/prefix (CIDR) or lower/upper.",
-                exception.getMessage());
+    private static final class ParseCase
+    {
+        final String in;
+        final Class<? extends Throwable> ex;
+        final String msg;
+        private ParseCase(String in, Class<? extends Throwable> ex, String msg) {
+            this.in=in;
+            this.ex=ex;
+            this.msg=msg;
+        }
+        static ParseCase ok(String in) {
+            return new ParseCase(in, null, null);
+        }
+        static ParseCase err(String in, Class<? extends Throwable> ex, String msg) {
+            return new ParseCase(in, ex, msg);
+        }
+        @Override
+        public String toString() {
+            return in == null ? "null" : in;
+        }
     }
 
-    @Test
-    void testValidSingleIpv4() {
-        assertDoesNotThrow(() -> new IPRange("192.0.2.5"));
-    }
-
-    @Test
-    void testValidSingleIpv6() {
-        assertDoesNotThrow(() -> new IPRange("2001:db8::1"));
-    }
-
-    @Test
-    void testValidCidrIpv4() {
-        assertDoesNotThrow(() -> new IPRange("10.0.0.0/24"));
-    }
-
-    @Test
-    void testValidCidrIpv6() {
-        assertDoesNotThrow(() -> new IPRange("2001:db8::/48"));
-    }
-
-    @Test
-    void testValidRangeIpv4() {
-        assertDoesNotThrow(() -> new IPRange("10.0.0.1/10.0.0.20"));
-    }
-
-    @Test
-    void testValidCidrIpv4Prefix0() {
-        assertDoesNotThrow(() -> new IPRange("0.0.0.0/0"));
-    }
-
-    @Test
-    void testValidCidrIpv4Prefix32() {
-        assertDoesNotThrow(() -> new IPRange("255.255.255.255/32"));
-    }
-
-    @Test
-    void testValidCidrIpv6Prefix0() {
-        assertDoesNotThrow(() -> new IPRange("::/0"));
-    }
-
-    @Test
-    void testValidCidrIpv6Prefix128() {
-        assertDoesNotThrow(() -> new IPRange("2001:db8::1/128"));
-    }
-
-    @Test
-    void testValidTrimmedSingleIp() {
-        assertDoesNotThrow(() -> new IPRange("  10.1.1.1  "));
-    }
-
-    @Test
-    void testValidIpv6LowerUpperRange() {
-        assertDoesNotThrow(() -> new IPRange("2001:db8::1/2001:db8::ff"));
-    }
-
-    @Test
-    void testValidSameIpRangeIpv4() {
-        assertDoesNotThrow(() -> new IPRange("10.0.0.1/10.0.0.1"));
-    }
-
-    @Test
-    void testInvalidRangeWithOnlyLowerAndSeparator() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("10.0.0.1/"));
-        assertEquals("Malformed range '10.0.0.1/'. Expected ip/prefix (CIDR) or lower/upper.", exception.getMessage());
-    }
-
-    @Test
-    void testInvalidRangeWithOnlyPrefix() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("/24"));
-        assertEquals("Malformed range '/24'. Expected ip/prefix (CIDR) or lower/upper.", exception.getMessage());
-    }
-
-    @Test
-    void testInvalidMixedVersions() {
-        IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> new IPRange("10.0.0.1/::1"));
-        assertEquals("IPv4/IPv6 mismatch: '10.0.0.1' vs '::1'.", exception.getMessage());
-    }
-
-    @Test
-    void testInvalidSingleIp() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("999.999.999.999"));
-        assertEquals(
-                "Malformed input '999.999.999.999'. Expected IP address, ip/prefix (CIDR) or lower/upper.",
-                exception.getMessage());
-    }
-
-    @Test
-    void testInvalidCidrIpv6Prefix129() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("2001:db8::/129"));
-        assertEquals("Malformed CIDR '2001:db8::/129'. Expected ip/prefix.", exception.getMessage());
-    }
-
-    @Test
-    void testInvalidCidrPrefixTooLarge() {
-        DruidException exception = assertThrows(DruidException.class, () -> new IPRange("10.0.0.0/33"));
-        assertEquals("Malformed CIDR '10.0.0.0/33'. Expected ip/prefix.", exception.getMessage());
-    }
-
-    @Test
-    void singleIpContainsItself() {
-        IPRange r = new IPRange("192.0.2.5");
-        IPAddress addr = new IPAddressString("192.0.2.5").getAddress();
-        assertTrue(r.contains(addr));
-    }
-
-    @Test
-    void singleIpDoesNotContainDifferent() {
-        IPRange r = new IPRange("192.0.2.5");
-        IPAddress addr = new IPAddressString("192.0.2.6").getAddress();
-        assertFalse(r.contains(addr));
-    }
-
-    @Test
-    void cidrContainsAddressInside() {
-        IPRange r = new IPRange("10.0.0.0/24");
-        IPAddress addr = new IPAddressString("10.0.0.128").getAddress();
-        assertTrue(r.contains(addr));
-    }
-
-    @Test
-    void cidrDoesNotContainAddressOutside() {
-        IPRange r = new IPRange("10.0.0.0/24");
-        IPAddress addr = new IPAddressString("10.0.1.1").getAddress();
-        assertFalse(r.contains(addr));
-    }
-
-    @Test
-    void rangeContainsLowerBoundary() {
-        IPRange r = new IPRange("10.0.0.5/10.0.0.10");
-        IPAddress addr = new IPAddressString("10.0.0.5").getAddress();
-        assertTrue(r.contains(addr));
-    }
-
-    @Test
-    void rangeContainsUpperBoundary() {
-        IPRange r = new IPRange("10.0.0.5/10.0.0.10");
-        IPAddress addr = new IPAddressString("10.0.0.10").getAddress();
-        assertTrue(r.contains(addr));
-    }
-
-    @Test
-    void rangeContainsMiddleAddress() {
-        IPRange r = new IPRange("10.0.0.5/10.0.0.10");
-        IPAddress addr = new IPAddressString("10.0.0.8").getAddress();
-        assertTrue(r.contains(addr));
-    }
-
-    @Test
-    void rangeDoesNotContainBelowLower() {
-        IPRange r = new IPRange("10.0.0.5/10.0.0.10");
-        IPAddress addr = new IPAddressString("10.0.0.4").getAddress();
-        assertFalse(r.contains(addr));
-    }
-
-    @Test
-    void rangeDoesNotContainAboveUpper() {
-        IPRange r = new IPRange("10.0.0.5/10.0.0.10");
-        IPAddress addr = new IPAddressString("10.0.0.11").getAddress();
-        assertFalse(r.contains(addr));
-    }
-
-    @Test
-    void reversedRangeStillContains() {
-        IPRange r = new IPRange("10.0.0.10/10.0.0.5");
-        IPAddress addr = new IPAddressString("10.0.0.7").getAddress();
-        assertTrue(r.contains(addr));
-    }
-
-    @Test
-    void ipv6RangeContains() {
-        IPRange r = new IPRange("2001:db8::1/2001:db8::ff");
-        IPAddress addr = new IPAddressString("2001:db8::80").getAddress();
-        assertTrue(r.contains(addr));
-    }
-
-    @Test
-    void ipv6RangeDoesNotContain() {
-        IPRange r = new IPRange("2001:db8::1/2001:db8::ff");
-        IPAddress addr = new IPAddressString("2001:db8:1::1").getAddress();
-        assertFalse(r.contains(addr));
+    private static final class ContainsCase {
+        final String range, addr; final boolean expected;
+        private ContainsCase(String range, String addr, boolean expected) {
+            this.range=range;
+            this.addr=addr;
+            this.expected=expected;
+        }
+        static ContainsCase of(String range, String addr, boolean expected) {
+            return new ContainsCase(range, addr, expected);
+        }
+        @Override public String toString() {
+            return range + " :: " + addr + " => " + expected;
+        }
     }
 }
