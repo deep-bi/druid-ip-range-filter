@@ -19,9 +19,8 @@ import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.format.IPAddressRange;
-import org.apache.druid.java.util.common.Pair;
-
 import java.util.Objects;
+import org.apache.druid.java.util.common.Pair;
 
 public class IPRange {
     private final IPAddressRange addressRange;
@@ -52,6 +51,10 @@ public class IPRange {
 
     public IPAddress getUpper() {
         return addressRange.getUpper();
+    }
+
+    public IPAddressRange getAddressRange() {
+        return addressRange;
     }
 
     @Override
