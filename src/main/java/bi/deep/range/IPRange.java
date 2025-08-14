@@ -18,19 +18,21 @@ package bi.deep.range;
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;
+import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.format.IPAddressRange;
 import org.apache.druid.java.util.common.Pair;
 
 import java.util.Objects;
 
 public class IPRange {
-    private final IPAddressRange addressRange;
+    private final IPAddressSeqRange addressRange;
     private final IPAddress.IPVersion ipVersion;
 
     @JsonCreator
     public IPRange(String range) {
         Pair<IPAddressRange, IPAddress.IPVersion> parsedRange = IPRangeUtil.parseIPAndVersion(range);
-        this.addressRange = parsedRange.lhs;
+        assert parsedRange.lhs != null;
+        this.addressRange = parsedRange.lhs.toSequentialRange();
         this.ipVersion = parsedRange.rhs;
     }
 
@@ -53,6 +55,11 @@ public class IPRange {
     public IPAddress getUpper() {
         return addressRange.getUpper();
     }
+
+    public IPAddressSeqRange getAddressRange() {
+        return addressRange;
+    }
+
 
     @Override
     public boolean equals(Object o) {
