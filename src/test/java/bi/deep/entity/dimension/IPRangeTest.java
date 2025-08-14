@@ -136,13 +136,13 @@ class IPRangeTest {
     void testInvalidRangeWithInvalidString() {
         DruidException exception =
                 assertThrows(DruidException.class, () -> IPRange.fromString("invalidLowerIP/0.0.0.0"));
-        assertEquals("Invalid input", exception.getMessage());
+        assertEquals("Invalid lower IP 'invalidLowerIP/0.0.0.0'.", exception.getMessage());
     }
 
     @Test
     void testInvalidRangeWithInvalidUpperString() {
         DruidException exception =
                 assertThrows(DruidException.class, () -> IPRange.fromString("0.0.0.0/invalidUpperIP"));
-        assertEquals("Invalid input", exception.getMessage());
+        assertEquals("Invalid upper IP '0.0.0.0/invalidUpperIP'.", exception.getMessage());
     }
 }

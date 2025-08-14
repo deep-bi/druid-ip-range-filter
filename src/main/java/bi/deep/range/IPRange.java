@@ -15,74 +15,23 @@
  */
 package bi.deep.range;
 
+import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;
-import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
+import org.apache.druid.java.util.common.Pair;
+
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.druid.error.InvalidInput;
-import org.apache.druid.java.util.common.IAE;
 
 public class IPRange {
-    private static final String SEPARATOR = "/";
     private final IPAddressRange addressRange;
     private final IPAddress.IPVersion ipVersion;
 
     @JsonCreator
     public IPRange(String range) {
-        if (StringUtils.isBlank(range)) {
-            throw InvalidInput.exception("Range cannot be null or empty");
-        }
-
-        range = range.trim();
-
-        IPAddress lower;
-        IPAddress upper;
-
-        if (range.contains(SEPARATOR)) {
-            String[] parts = range.split(SEPARATOR, 2);
-            if (parts.length != 2) {
-                throw InvalidInput.exception("Malformed range '%s'. Expected ip/prefix (CIDR) or lower/upper.", range);
-            }
-            if (parts[0].isEmpty() || parts[1].isEmpty()) {
-                throw InvalidInput.exception("Malformed range '%s'. Expected ip/prefix (CIDR) or lower/upper.", range);
-            }
-            if (StringUtils.isNumeric(parts[1])) { // CIDR
-                IPAddress cidr = new IPAddressString(range).getAddress();
-                if (cidr == null) {
-                    throw InvalidInput.exception("Malformed CIDR '%s'. Expected ip/prefix.", range);
-                }
-                IPAddress block = cidr.toPrefixBlock();
-                lower = block.getLower();
-                upper = block.getUpper();
-            } else { // lower/upper
-                lower = new IPAddressString(parts[0]).getAddress();
-                upper = new IPAddressString(parts[1]).getAddress();
-            }
-        } else {
-            lower = new IPAddressString(range).getAddress();
-            if (lower == null) {
-                throw InvalidInput.exception(
-                        "Malformed input '%s'. Expected IP address, ip/prefix (CIDR) or lower/upper.", range);
-            }
-            upper = lower;
-        }
-
-        if (lower == null) {
-            throw InvalidInput.exception("Invalid lower IP '%s'.", range);
-        }
-
-        if (upper == null) {
-            throw InvalidInput.exception("Invalid upper IP '%s'.", range);
-        }
-
-        if (!lower.getIPVersion().equals(upper.getIPVersion())) {
-            throw new IAE("IPv4/IPv6 mismatch: '%s' vs '%s'.", lower, upper);
-        }
-
-        this.addressRange = lower.spanWithRange(upper);
-        this.ipVersion = lower.getIPVersion();
+        Pair<IPAddressRange, IPAddress.IPVersion> parsedRange = IPRangeUtil.parseIPAndVersion(range);
+        this.addressRange = parsedRange.lhs;
+        this.ipVersion = parsedRange.rhs;
     }
 
     public boolean contains(final IPAddress address) {

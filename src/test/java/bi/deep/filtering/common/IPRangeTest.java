@@ -108,19 +108,15 @@ class IPRangeTest {
 
             ParseCase.err("invalidLowerIP/0.0.0.0", DruidException.class, "Invalid lower IP 'invalidLowerIP/0.0.0.0'."),
             ParseCase.err("0.0.0.0/invalidUpperIP", DruidException.class, "Invalid upper IP '0.0.0.0/invalidUpperIP'."),
-
-            ParseCase.err("0.0.0.0-127.0.1.0", DruidException.class,
-                          "Malformed input '0.0.0.0-127.0.1.0'. Expected IP address, ip/prefix (CIDR) or lower/upper."
-            ),
             ParseCase.err("999.999.999.999", DruidException.class,
-                          "Malformed input '999.999.999.999'. Expected IP address, ip/prefix (CIDR) or lower/upper."
+                          "Malformed input '999.999.999.999'. Expected IP address, ip/prefix (CIDR), lower/upper or lower-upper."
             ),
 
             ParseCase.err("10.0.0.1/", DruidException.class,
-                          "Malformed range '10.0.0.1/'. Expected ip/prefix (CIDR) or lower/upper."
+                          "Malformed '10.0.0.1/'. Empty side around separator."
             ),
             ParseCase.err("/24", DruidException.class,
-                          "Malformed range '/24'. Expected ip/prefix (CIDR) or lower/upper."
+                          "Malformed '/24'. Empty side around separator."
             ),
 
             ParseCase.err(
@@ -143,7 +139,9 @@ class IPRangeTest {
             ParseCase.ok("2001:db8::1/128"),
             ParseCase.ok("  10.1.1.1  "),
             ParseCase.ok("2001:db8::1/2001:db8::ff"),
-            ParseCase.ok("10.0.0.1/10.0.0.1")
+            ParseCase.ok("10.0.0.1/10.0.0.1"),
+            ParseCase.ok("0.0.0.0-127.0.1.0")
+
         );
     }
 
