@@ -15,50 +15,22 @@
  */
 package bi.deep.range;
 
+import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;
-import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.druid.error.InvalidInput;
-import org.apache.druid.java.util.common.IAE;
+import org.apache.druid.java.util.common.Pair;
 
 public class IPRange {
-    private static final String SEPARATOR = "/";
     private final IPAddressRange addressRange;
     private final IPAddress.IPVersion ipVersion;
 
     @JsonCreator
     public IPRange(String range) {
-        if (StringUtils.isBlank(range)) {
-            throw InvalidInput.exception("Range cannot be null or empty");
-        }
-
-        final String[] bounds = range.split(SEPARATOR);
-
-        if (bounds.length != 2) {
-            throw InvalidInput.exception(
-                    String.format("Range should include lower and upper bounds in format `lower%supper`", SEPARATOR));
-        }
-
-        final IPAddress lower = new IPAddressString(bounds[0]).getAddress();
-        final IPAddress upper = new IPAddressString(bounds[1]).getAddress();
-
-        if (lower == null) {
-            throw InvalidInput.exception("Invalid lower IP address");
-        }
-
-        if (upper == null) {
-            throw InvalidInput.exception("Invalid upper IP address");
-        }
-
-        if (!lower.getIPVersion().equals(upper.getIPVersion())) {
-            throw new IAE("Invalid IP type, it must be of the same IP type (IPv4 or IPv6)");
-        }
-
-        this.addressRange = lower.spanWithRange(upper);
-        this.ipVersion = lower.getIPVersion();
+        Pair<IPAddressRange, IPAddress.IPVersion> parsedRange = IPRangeUtil.parseIPAndVersion(range);
+        this.addressRange = parsedRange.lhs;
+        this.ipVersion = parsedRange.rhs;
     }
 
     public boolean contains(final IPAddress address) {
@@ -79,6 +51,10 @@ public class IPRange {
 
     public IPAddress getUpper() {
         return addressRange.getUpper();
+    }
+
+    public IPAddressRange getAddressRange() {
+        return addressRange;
     }
 
     @Override
