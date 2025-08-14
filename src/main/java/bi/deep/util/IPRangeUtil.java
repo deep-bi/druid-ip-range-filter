@@ -39,6 +39,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.druid.error.InvalidInput;
+import org.apache.druid.java.util.common.IAE;
+import org.apache.druid.java.util.common.Pair;
 
 public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -47,27 +50,78 @@ public final class IPRangeUtil {
     private static final Pattern CIDR_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+/\\d+$");
     private static final Pattern IP_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+$");
     private static final int PARALLEL_LIMIT = 200;
+    private static final char SLASH = '/';
+    private static final char HYPHEN = '-';
+    private static final char EN_DASH = '–';
 
     private IPRangeUtil() {
         throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
     }
 
     @Nullable
-    public static IPAddressRange fromString(String token) {
-        Matcher dashMatcher = DASH_REGEX.matcher(token);
+    public static IPAddressRange fromString(String range) {
+        return parseIPAndVersion(range).lhs;
+    }
 
-        if (dashMatcher.matches()) {
-            return extractIPRange(dashMatcher);
+    public static Pair<IPAddressRange, IPAddress.IPVersion> parseIPAndVersion(String range) {
+        if (StringUtils.isBlank(range)) {
+            throw InvalidInput.exception("Range cannot be null or empty");
+        }
+        range = range.trim();
+
+        final int hy = range.indexOf(HYPHEN);
+        final int en = range.indexOf(EN_DASH);
+        final int sl = range.indexOf(SLASH);
+
+        int kinds = (sl >= 0 ? 1 : 0) + (hy >= 0 ? 1 : 0) + (en >= 0 ? 1 : 0);
+
+        if (kinds > 1){
+            throw InvalidInput.exception("Expected exactly one separator: '/', '-' or '–': '%s'", range);
         }
 
-        Matcher slashMatcher = SLASH_REGEX.matcher(token);
-        Matcher cidrMatcher = CIDR_REGEX.matcher(token);
-
-        if (slashMatcher.matches() && !cidrMatcher.matches()) {
-            return extractIPRange(slashMatcher);
+        if (kinds == 0) { // single IP
+            IPAddress ip = new IPAddressString(range).getAddress();
+            if (ip == null) {
+                throw InvalidInput.exception("Malformed input '%s'. Expected IP address, ip/prefix (CIDR), lower/upper or lower-upper.", range);
+            }
+            return new Pair<>(ip, ip.getIPVersion());
         }
 
-        return new IPAddressString(token).getAddress();
+        final int sepPos = (hy >= 0) ? hy : (en >= 0 ? en : sl);
+        final char sep = (hy >= 0) ? HYPHEN : (en >= 0 ? EN_DASH : SLASH);
+
+        if (range.indexOf(sep, sepPos + 1) != -1){
+            throw InvalidInput.exception("Multiple '%s' in '%s'", sep, range);
+        }
+
+        final String left  = range.substring(0, sepPos).trim();
+        final String right = range.substring(sepPos + 1).trim();
+
+        if (left.isEmpty() || right.isEmpty()){
+            throw InvalidInput.exception("Malformed '%s'. Empty side around separator.", range);
+        }
+
+        IPAddress lower;
+        IPAddress upper;
+
+        if (sep == SLASH && isDigits(right)) {
+            IPAddress cidr = new IPAddressString(range).getAddress();
+            if (cidr == null){
+                throw InvalidInput.exception("Malformed CIDR '%s'. Expected ip/prefix.", range);
+            }
+            return new Pair<>(cidr, cidr.getIPVersion());
+        } else {
+            lower = new IPAddressString(left).getAddress();
+            if (lower == null) throw InvalidInput.exception("Invalid lower IP '%s'.", range);
+            upper = new IPAddressString(right).getAddress();
+            if (upper == null) throw InvalidInput.exception("Invalid upper IP '%s'.", range);
+        }
+
+        if (!lower.getIPVersion().equals(upper.getIPVersion())) {
+            throw new IAE("IPv4/IPv6 mismatch: '%s' vs '%s'.", lower, upper);
+        }
+
+        return new Pair<>(lower.spanWithRange(upper), lower.getIPVersion());
     }
 
     public static int getSize(IPAddressRange range) {
@@ -76,15 +130,14 @@ public final class IPRangeUtil {
         return range.getByteCount() == IPv4Address.BYTE_COUNT ? 20 : 44;
     }
 
-    private static IPAddressRange extractIPRange(Matcher matcher) {
-        IPAddress low = new IPAddressString(matcher.group(1)).getAddress();
-        IPAddress high = new IPAddressString(matcher.group(2)).getAddress();
-
-        if (low != null && high != null && low.getIPVersion() == high.getIPVersion()) {
-            return low.spanWithRange(high);
+    private static boolean isDigits(String s) {
+        if (s.isEmpty()) return false;
+        for (int i = 0; i < s.length(); i++){
+            if (!Character.isDigit(s.charAt(i))){
+                return false;
+            }
         }
-
-        return null;
+        return true;
     }
 
     private static Object parseToken(String data, Map<String, Object> cache) {
