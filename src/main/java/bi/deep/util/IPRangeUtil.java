@@ -36,12 +36,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.druid.error.InvalidInput;
 import org.apache.druid.java.util.common.IAE;
-import org.apache.druid.java.util.common.Pair;
 
 public final class IPRangeUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -58,12 +56,7 @@ public final class IPRangeUtil {
         throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
     }
 
-    @Nullable
     public static IPAddressRange fromString(String range) {
-        return parseIPAndVersion(range).lhs;
-    }
-
-    public static Pair<IPAddressRange, IPAddress.IPVersion> parseIPAndVersion(String range) {
         if (StringUtils.isBlank(range)) {
             throw InvalidInput.exception("Range cannot be null or empty");
         }
@@ -84,7 +77,7 @@ public final class IPRangeUtil {
             if (ip == null) {
                 throw InvalidInput.exception("Malformed input '%s'. Expected IP address, ip/prefix (CIDR), lower/upper or lower-upper.", range);
             }
-            return new Pair<>(ip, ip.getIPVersion());
+            return ip;
         }
 
         final int sepPos = (hy >= 0) ? hy : (en >= 0 ? en : sl);
@@ -109,7 +102,7 @@ public final class IPRangeUtil {
             if (cidr == null){
                 throw InvalidInput.exception("Malformed CIDR '%s'. Expected ip/prefix.", range);
             }
-            return new Pair<>(cidr, cidr.getIPVersion());
+            return cidr;
         } else {
             lower = new IPAddressString(left).getAddress();
             if (lower == null) throw InvalidInput.exception("Invalid lower IP '%s'.", range);
@@ -121,7 +114,7 @@ public final class IPRangeUtil {
             throw new IAE("IPv4/IPv6 mismatch: '%s' vs '%s'.", lower, upper);
         }
 
-        return new Pair<>(lower.spanWithRange(upper), lower.getIPVersion());
+        return lower.spanWithRange(upper);
     }
 
     public static int getSize(IPAddressRange range) {

@@ -19,7 +19,6 @@ import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.format.IPAddressRange;
-import org.apache.druid.java.util.common.Pair;
 
 import java.util.Objects;
 
@@ -29,9 +28,8 @@ public class IPRange {
 
     @JsonCreator
     public IPRange(String range) {
-        Pair<IPAddressRange, IPAddress.IPVersion> parsedRange = IPRangeUtil.parseIPAndVersion(range);
-        this.addressRange = parsedRange.lhs;
-        this.ipVersion = parsedRange.rhs;
+        this.addressRange = IPRangeUtil.fromString(range);
+        this.ipVersion = addressRange.getLower().getIPVersion();
     }
 
     public boolean contains(final IPAddress address) {
