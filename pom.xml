@@ -33,6 +33,11 @@
     <java.version>11</java.version>
   </properties>
 
+  <organization>
+    <name>DeepBi</name>
+    <url>https://www.deep.bi/</url>
+  </organization>
+
   <scm>
     <connection>scm:git:git://github.com/deep-bi/deep-druid-extensions.git</connection>
     <developerConnection>scm:git:git://github.com/deep-bi/deep-druid-extensions.git</developerConnection>
@@ -71,6 +76,7 @@
   </dependencies>
 
   <build>
+    <!-- <finalName>${project.artifactId}-${project.version}-${druid.version}</finalName> -->
     <finalName>${project.artifactId}-${druid.version}-${project.version}</finalName>
 
     <plugins>
@@ -114,7 +120,11 @@
         <version>3.2.2</version>
         <configuration>
           <archive>
-            <addMavenDescriptor>false</addMavenDescriptor>
+            <manifestEntries>
+              <Implementation-Title>${project.artifactId}</Implementation-Title>
+              <Implementation-Version>${project.version}-${druid.version}</Implementation-Version>
+              <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
