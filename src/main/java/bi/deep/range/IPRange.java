@@ -52,6 +52,10 @@ public class IPRange {
         return addressRange.getUpper();
     }
 
+    public IPAddressRange getAddressRange() {
+        return addressRange;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
