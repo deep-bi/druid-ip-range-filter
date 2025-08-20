@@ -18,22 +18,18 @@ package bi.deep.range;
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;
-import inet.ipaddr.IPAddressSeqRange;
 import inet.ipaddr.format.IPAddressRange;
-import org.apache.druid.java.util.common.Pair;
 
 import java.util.Objects;
 
 public class IPRange {
-    private final IPAddressSeqRange addressRange;
+    private final IPAddressRange addressRange;
     private final IPAddress.IPVersion ipVersion;
 
     @JsonCreator
     public IPRange(String range) {
-        Pair<IPAddressRange, IPAddress.IPVersion> parsedRange = IPRangeUtil.parseIPAndVersion(range);
-        assert parsedRange.lhs != null;
-        this.addressRange = parsedRange.lhs.toSequentialRange();
-        this.ipVersion = parsedRange.rhs;
+        this.addressRange = IPRangeUtil.fromString(range);
+        this.ipVersion = addressRange.getLower().getIPVersion();
     }
 
     public boolean contains(final IPAddress address) {
@@ -56,10 +52,9 @@ public class IPRange {
         return addressRange.getUpper();
     }
 
-    public IPAddressSeqRange getAddressRange() {
+    public IPAddressRange getAddressRange() {
         return addressRange;
     }
-
 
     @Override
     public boolean equals(Object o) {
