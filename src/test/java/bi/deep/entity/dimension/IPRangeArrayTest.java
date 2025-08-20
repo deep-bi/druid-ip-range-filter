@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
@@ -115,5 +116,16 @@ class IPRangeArrayTest {
         searchSet.add(upper.increment(1));
 
         assertFalse(ipRangeArray.contains(searchSet));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"192.168.1.1", "39.181.2.192", "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f"})
+    void testSingleIPContains(String addressStr) {
+        final IPAddress address = new IPAddressString(addressStr).getAddress();
+        final IPRangeArray rangeArray = IPRangeArray.fromArray(ImmutableList.of(addressStr));
+        final SortedSet<IPAddress> searchSet = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
+
+        searchSet.add(address);
+        assertTrue(rangeArray.contains(searchSet));
     }
 }
