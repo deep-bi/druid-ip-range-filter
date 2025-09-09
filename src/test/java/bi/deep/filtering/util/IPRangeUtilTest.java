@@ -30,6 +30,8 @@ import inet.ipaddr.IPAddressString;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import inet.ipaddr.format.IPAddressRange;
 import org.junit.jupiter.api.Test;
 
 class IPRangeUtilTest {
@@ -139,5 +141,12 @@ class IPRangeUtilTest {
         IPSetContents ranges = IPRangeUtil.extractIPSetContents(input);
         List<IPAddress> ips = IPRangeUtil.mapStringsToIps(Sets.newHashSet("192.168.1.2"));
         assertFalse(ranges.containsAnyIP(ips, false));
+    }
+
+    @Test
+    void testCidrNormalization() {
+        IPAddressRange first = IPRangeUtil.fromString("10.0.0.12/24"); // normalized to 10.0.0.0/24
+        IPAddressRange second = IPRangeUtil.fromString("10.0.0.0/24");
+        assertEquals(first, second);
     }
 }
