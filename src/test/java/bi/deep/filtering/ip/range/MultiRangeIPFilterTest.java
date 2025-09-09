@@ -15,6 +15,7 @@
  */
 package bi.deep.filtering.ip.range;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,6 +23,8 @@ import bi.deep.filtering.ip.range.impl.MultiRangeIPFilterImpl;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
+
+import java.util.Arrays;
 import java.util.stream.LongStream;
 import org.apache.druid.query.filter.Filter;
 import org.junit.jupiter.api.Assertions;
@@ -111,5 +114,21 @@ class MultiRangeIPFilterTest {
         assertTrue(LongStream.range(0, count).mapToObj(ipV6Address::increment).allMatch(filterImp::contains));
         assertFalse(LongStream.range(0, count).mapToObj(ipV4Address::increment).allMatch(filterImp::contains));
         assertFalse(filterImp.contains(ipV6Address.increment(count + 1)));
+    }
+
+    @Test
+    void testCidrEquality() {
+        final MultiRangeIPFilter fHost = new MultiRangeIPFilter(
+            "dimension", ImmutableSet.of("10.0.0.12/24"), false);
+        final MultiRangeIPFilter fNet = new MultiRangeIPFilter(
+            "dimension", ImmutableSet.of("10.0.0.0/24"), false);
+
+        final MultiRangeIPFilterImpl a = (MultiRangeIPFilterImpl) fHost.toFilter();
+        final MultiRangeIPFilterImpl b = (MultiRangeIPFilterImpl) fNet.toFilter();
+
+        for (String s : Arrays.asList("10.0.0.0", "10.0.0.12", "10.0.0.200", "10.0.0.255", "10.0.1.0", "11.0.0.1", "9.255.255.255")) {
+            IPAddress ip = new IPAddressString(s).getAddress();
+            assertEquals(a.contains(ip), b.contains(ip), "Mismatch on " + s);
+        }
     }
 }
