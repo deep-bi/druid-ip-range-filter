@@ -103,7 +103,8 @@ public final class IPRangeUtil {
             if (cidr == null){
                 throw InvalidInput.exception("Malformed CIDR '%s'. Expected ip/prefix.", range);
             }
-            return cidr;
+            IPAddress block = cidr.toPrefixBlock(); // normalization
+            return block.toSequentialRange();
         } else {
             lower = new IPAddressString(left).getAddress();
             if (lower == null) throw InvalidInput.exception("Invalid lower IP '%s'.", range);
