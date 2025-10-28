@@ -27,11 +27,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
+import inet.ipaddr.format.IPAddressRange;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
-import inet.ipaddr.format.IPAddressRange;
 
 import org.apache.druid.common.config.NullHandling;
 import org.junit.jupiter.api.BeforeAll;

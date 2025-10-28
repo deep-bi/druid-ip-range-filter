@@ -21,15 +21,14 @@ import bi.deep.range.IPRange;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
-import java.util.Objects;
-import java.util.Set;
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
 import inet.ipaddr.ipv4.IPv4Address;
 import inet.ipaddr.ipv4.IPv4AddressTrie;
 import inet.ipaddr.ipv6.IPv6Address;
 import inet.ipaddr.ipv6.IPv6AddressTrie;
+import java.util.Objects;
+import java.util.Set;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.druid.error.InvalidInput;
 import org.apache.druid.query.dimension.DefaultDimensionSpec;
@@ -74,8 +73,7 @@ public class MultiRangeIPFilterImpl implements Filter {
     }
 
     @VisibleForTesting
-    public boolean contains(@NotNull final IPAddress ipAddress)
-    {
+    public boolean contains(@NotNull final IPAddress ipAddress) {
         // Check if we have same version ranges defined
         if (ipAddress.isIPv4()) {
             return v4Trie.isEmpty() ? ignoreVersionMismatch : v4Trie.elementContains((IPv4Address) ipAddress);
@@ -86,8 +84,7 @@ public class MultiRangeIPFilterImpl implements Filter {
         }
     }
 
-    private void collectRange(IPRange range)
-    {
+    private void collectRange(IPRange range) {
         for (IPAddress block : range.getAddressRange().spanWithPrefixBlocks()) {
             if (block.isIPv4()) {
                 v4Trie.add((IPv4Address) block);

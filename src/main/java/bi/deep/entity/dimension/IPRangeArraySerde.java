@@ -16,6 +16,11 @@
 package bi.deep.entity.dimension;
 
 import bi.deep.guice.IPRangeDimensionModule;
+import it.unimi.dsi.fastutil.Hash;
+import java.util.Objects;
+import org.apache.druid.segment.column.ColumnType;
+import org.apache.druid.segment.column.ObjectStrategyComplexTypeStrategy;
+import org.apache.druid.segment.column.TypeStrategy;
 import org.apache.druid.segment.data.ObjectStrategy;
 import org.apache.druid.segment.serde.ComplexColumnSerializer;
 import org.apache.druid.segment.serde.ComplexMetricExtractor;
@@ -41,5 +46,21 @@ public class IPRangeArraySerde extends ComplexMetricSerde {
     @Override
     public ComplexColumnSerializer getSerializer(SegmentWriteOutMedium segmentWriteOutMedium, String column) {
         return ComplexColumnSerializer.create(segmentWriteOutMedium, column, getObjectStrategy());
+    }
+
+    @Override
+    public TypeStrategy<IPRangeArray> getTypeStrategy() {
+        return new ObjectStrategyComplexTypeStrategy<>(
+                getObjectStrategy(), ColumnType.ofComplex(getTypeName()), new Hash.Strategy<>() {
+                    @Override
+                    public int hashCode(IPRangeArray ipRangeArray) {
+                        return Objects.hashCode(ipRangeArray);
+                    }
+
+                    @Override
+                    public boolean equals(IPRangeArray ipRangeArray, IPRangeArray k1) {
+                        return Objects.equals(ipRangeArray, k1);
+                    }
+                });
     }
 }
