@@ -58,8 +58,8 @@ public class IPRangeArraySerde extends ComplexMetricSerde {
                     }
 
                     @Override
-                    public boolean equals(IPRangeArray ipRangeArray, IPRangeArray k1) {
-                        return Objects.equals(ipRangeArray, k1);
+                    public boolean equals(IPRangeArray a, IPRangeArray b) {
+                        return Objects.equals(a, b);
                     }
                 });
     }
