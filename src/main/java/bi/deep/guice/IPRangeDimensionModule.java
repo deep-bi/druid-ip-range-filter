@@ -23,7 +23,7 @@ import bi.deep.entity.dimension.IPRangeDimensionSchema;
 import bi.deep.entity.dimension.IPRangeSerde;
 import bi.deep.filtering.ip.range.IPNativeRangeMatchingFilter;
 import bi.deep.matching.IPNativeRangeArrayFilteredVirtualColumn;
-import bi.deep.matching.IPNativeangeArrayFilteredDimensionSpec;
+import bi.deep.matching.IPNativeRangeArrayFilteredDimensionSpec;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.annotations.VisibleForTesting;
@@ -52,7 +52,7 @@ public class IPRangeDimensionModule implements DruidModule {
                 .registerSubtypes(IPRangeDimensionSchema.class)
                 .registerSubtypes(IPRangeArrayDimensionSchema.class)
                 .registerSubtypes(IPNativeRangeMatchingFilter.class)
-                .registerSubtypes(IPNativeangeArrayFilteredDimensionSpec.class)
+                .registerSubtypes(IPNativeRangeArrayFilteredDimensionSpec.class)
                 .registerSubtypes(IPNativeRangeArrayFilteredVirtualColumn.class));
     }
 
