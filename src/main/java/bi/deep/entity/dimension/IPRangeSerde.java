@@ -51,7 +51,7 @@ public class IPRangeSerde extends ComplexMetricSerde {
     @Override
     public TypeStrategy<IPRange> getTypeStrategy() {
         return new ObjectStrategyComplexTypeStrategy<>(
-                getObjectStrategy(), ColumnType.ofComplex(getTypeName()), new Hash.Strategy<>() {
+                getObjectStrategy(), ColumnType.ofComplex(getTypeName()), new Hash.Strategy<IPRange>() {
                     @Override
                     public int hashCode(IPRange ipRange) {
                         return Objects.hashCode(ipRange);
