@@ -38,13 +38,13 @@ class IPRangeArraySerializerTest {
 
         IPRangeArray array = IPRangeArray.from(ImmutableList.of(
                 "e3e7:682:c209:4cac:629f:6fbf:d82c:7cd",
-                "10.0.0.12/24", // 10.0.0.12/24 is effectively equal to 10.0.0.0/24, so we expect to have 1 range 10.0.0.0 -> 10.0.0.255 in the output
+                "10.0.0.12/24", // 10.0.0.12/24 is effectively equal to 10.0.0.0/24, so we expect to have 1 range
+                // 10.0.0.0 -> 10.0.0.255 in the output
                 "10.0.0.0/24",
                 "48.146.23.142",
                 "2404:6800:4003:c03::/64",
                 "172.16.0.5-172.16.0.20",
-                "2001:0db8:85a3::8a2e:0370:1000-2001:0db8:85a3::8a2e:0370:9000"
-                ));
+                "2001:0db8:85a3::8a2e:0370:1000-2001:0db8:85a3::8a2e:0370:9000"));
         String json = mapper.writeValueAsString(array);
         assertNotNull(json);
 

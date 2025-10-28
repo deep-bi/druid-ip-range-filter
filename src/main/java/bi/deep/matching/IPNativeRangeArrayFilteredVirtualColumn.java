@@ -15,6 +15,7 @@
  */
 package bi.deep.matching;
 
+import bi.deep.guice.IPRangeDimensionModule;
 import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -90,7 +91,7 @@ public class IPNativeRangeArrayFilteredVirtualColumn implements VirtualColumn {
 
     @Override
     public ColumnCapabilities capabilities(ColumnInspector inspector, String columnName) {
-        return inspector.getColumnCapabilities(getDelegate().getDimension());
+        return new ColumnCapabilitiesImpl().setType(IPRangeDimensionModule.ARRAY_TYPE);
     }
 
     @Override

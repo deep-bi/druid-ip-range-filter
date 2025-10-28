@@ -68,14 +68,16 @@ public final class IPRangeUtil {
 
         int kinds = (sl >= 0 ? 1 : 0) + (hy >= 0 ? 1 : 0) + (en >= 0 ? 1 : 0);
 
-        if (kinds > 1){
+        if (kinds > 1) {
             throw InvalidInput.exception("Expected exactly one separator: '/', '-' or '–': '%s'", range);
         }
 
         if (kinds == 0) { // single IP
             IPAddress ip = new IPAddressString(range).getAddress();
             if (ip == null) {
-                throw InvalidInput.exception("Malformed input '%s'. Expected IP address, ip/prefix (CIDR), lower/upper or lower-upper.", range);
+                throw InvalidInput.exception(
+                        "Malformed input '%s'. Expected IP address, ip/prefix (CIDR), lower/upper or lower-upper.",
+                        range);
             }
             return ip;
         }
@@ -83,14 +85,14 @@ public final class IPRangeUtil {
         final int sepPos = (hy >= 0) ? hy : (en >= 0 ? en : sl);
         final char sep = (hy >= 0) ? HYPHEN : (en >= 0 ? EN_DASH : SLASH);
 
-        if (range.indexOf(sep, sepPos + 1) != -1){
+        if (range.indexOf(sep, sepPos + 1) != -1) {
             throw InvalidInput.exception("Multiple '%s' in '%s'", sep, range);
         }
 
-        final String left  = range.substring(0, sepPos).trim();
+        final String left = range.substring(0, sepPos).trim();
         final String right = range.substring(sepPos + 1).trim();
 
-        if (left.isEmpty() || right.isEmpty()){
+        if (left.isEmpty() || right.isEmpty()) {
             throw InvalidInput.exception("Malformed '%s'. Empty side around separator.", range);
         }
 
@@ -99,7 +101,7 @@ public final class IPRangeUtil {
 
         if (sep == SLASH && isDigits(right)) {
             IPAddress cidr = new IPAddressString(range).getAddress();
-            if (cidr == null){
+            if (cidr == null) {
                 throw InvalidInput.exception("Malformed CIDR '%s'. Expected ip/prefix.", range);
             }
             IPAddress block = cidr.toPrefixBlock(); // normalization
@@ -126,8 +128,8 @@ public final class IPRangeUtil {
 
     private static boolean isDigits(String s) {
         if (s.isEmpty()) return false;
-        for (int i = 0; i < s.length(); i++){
-            if (!Character.isDigit(s.charAt(i))){
+        for (int i = 0; i < s.length(); i++) {
+            if (!Character.isDigit(s.charAt(i))) {
                 return false;
             }
         }

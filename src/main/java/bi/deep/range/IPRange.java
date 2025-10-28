@@ -19,7 +19,6 @@ import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.format.IPAddressRange;
-
 import java.util.Objects;
 
 public class IPRange {
