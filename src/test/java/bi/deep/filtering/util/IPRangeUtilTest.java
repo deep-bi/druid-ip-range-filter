@@ -31,9 +31,17 @@ import inet.ipaddr.format.IPAddressRange;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.druid.common.config.NullHandling;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class IPRangeUtilTest {
+
+    @BeforeAll
+    static void init(){
+        NullHandling.initializeForTests();
+    }
 
     @Test
     void testExtractIPRanges() {
