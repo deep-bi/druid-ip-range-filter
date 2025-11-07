@@ -1,29 +1,34 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright Deep BI, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package bi.deep.filtering.ip.range.impl;
 
 import bi.deep.filtering.common.IPAddressPredicate;
 import bi.deep.filtering.common.IPAddressPredicateFactory;
-import bi.deep.filtering.common.IPRange;
+import bi.deep.range.IPRange;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import inet.ipaddr.IPAddress;
+import inet.ipaddr.ipv4.IPv4Address;
+import inet.ipaddr.ipv4.IPv4AddressTrie;
+import inet.ipaddr.ipv6.IPv6Address;
+import inet.ipaddr.ipv6.IPv6AddressTrie;
+import java.util.Objects;
+import java.util.Set;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.druid.error.InvalidInput;
 import org.apache.druid.query.dimension.DefaultDimensionSpec;
@@ -33,16 +38,11 @@ import org.apache.druid.query.filter.ValueMatcher;
 import org.apache.druid.segment.ColumnSelectorFactory;
 import org.apache.druid.segment.index.BitmapColumnIndex;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class MultiRangeIPFilterImpl implements Filter {
     private final String column;
-    private final Set<IPRange> ipV4Ranges;
-    private final Set<IPRange> ipV6Ranges;
+
+    private final IPv4AddressTrie v4Trie = new IPv4AddressTrie();
+    private final IPv6AddressTrie v6Trie = new IPv6AddressTrie();
     private final boolean ignoreVersionMismatch;
 
     public MultiRangeIPFilterImpl(String column, Set<IPRange> ranges, boolean ignoreVersionMismatch) {
@@ -56,8 +56,7 @@ public class MultiRangeIPFilterImpl implements Filter {
         }
 
         this.column = column;
-        this.ipV4Ranges = ranges.stream().filter(IPRange::isIPv4).collect(Collectors.toSet());
-        this.ipV6Ranges = ranges.stream().filter(IPRange::isIPv6).collect(Collectors.toSet());
+        ranges.forEach(this::collectRange);
         this.ignoreVersionMismatch = ignoreVersionMismatch;
     }
 
@@ -70,19 +69,29 @@ public class MultiRangeIPFilterImpl implements Filter {
     @Override
     public ValueMatcher makeMatcher(ColumnSelectorFactory factory) {
         return factory.makeDimensionSelector(new DefaultDimensionSpec(column, column))
-                      .makeValueMatcher(new IPAddressPredicateFactory(IPAddressPredicate.of(this::contains)));
+                .makeValueMatcher(new IPAddressPredicateFactory(IPAddressPredicate.of(this::contains)));
     }
 
     @VisibleForTesting
     public boolean contains(@NotNull final IPAddress ipAddress) {
         // Check if we have same version ranges defined
-        if (ipAddress.isIPv4() && !ipV4Ranges.isEmpty()) {
-            return ipV4Ranges.stream().anyMatch(range -> range.contains(ipAddress));
-        } else if (ipAddress.isIPv6() && !ipV6Ranges.isEmpty()) {
-            return ipV6Ranges.stream().anyMatch(range -> range.contains(ipAddress));
+        if (ipAddress.isIPv4()) {
+            return v4Trie.isEmpty() ? ignoreVersionMismatch : v4Trie.elementContains((IPv4Address) ipAddress);
+        } else if (ipAddress.isIPv6()) {
+            return v6Trie.isEmpty() ? ignoreVersionMismatch : v6Trie.elementContains((IPv6Address) ipAddress);
+        } else {
+            return ignoreVersionMismatch;
         }
+    }
 
-        return ignoreVersionMismatch;
+    private void collectRange(IPRange range) {
+        for (IPAddress block : range.getAddressRange().spanWithPrefixBlocks()) {
+            if (block.isIPv4()) {
+                v4Trie.add((IPv4Address) block);
+            } else {
+                v6Trie.add((IPv6Address) block);
+            }
+        }
     }
 
     @Override
@@ -103,12 +112,12 @@ public class MultiRangeIPFilterImpl implements Filter {
 
         return ignoreVersionMismatch == that.ignoreVersionMismatch
                 && Objects.equals(column, that.column)
-                && Objects.equals(ipV4Ranges, that.ipV4Ranges)
-                && Objects.equals(ipV6Ranges, that.ipV6Ranges);
+                && Objects.equals(v4Trie, that.v4Trie)
+                && Objects.equals(v6Trie, that.v6Trie);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(column, ipV4Ranges, ipV6Ranges, ignoreVersionMismatch);
+        return Objects.hash(column, v4Trie, v6Trie, ignoreVersionMismatch);
     }
 }

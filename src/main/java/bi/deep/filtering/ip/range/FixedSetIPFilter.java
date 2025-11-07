@@ -1,20 +1,17 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright Deep BI, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package bi.deep.filtering.ip.range;
 
@@ -43,6 +40,11 @@ import org.apache.druid.query.filter.DimFilter;
 import org.apache.druid.query.filter.DimFilterUtils;
 import org.apache.druid.query.filter.Filter;
 
+/**
+ * @deprecated This class is deprecated in favour of `ip_range_match` filter.
+ * Please use {@link bi.deep.filtering.ip.range.RangeMatchingIPFilter} instead.
+ */
+@Deprecated
 @JsonTypeName("ip_fixed_range")
 public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements DimFilter {
     private static final byte CACHE_ID = 0x52;
@@ -51,9 +53,7 @@ public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements Di
     private final Set<String> ranges;
 
     @JsonCreator
-    public FixedSetIPFilter(
-            @JsonProperty("dimension") String dimension,
-            @JsonProperty("ranges") Set<String> ranges) {
+    public FixedSetIPFilter(@JsonProperty("dimension") String dimension, @JsonProperty("ranges") Set<String> ranges) {
         this.dimension = Preconditions.checkNotNull(dimension, "dimension");
         this.ranges = Preconditions.checkNotNull(ranges, "ranges");
 
@@ -67,7 +67,6 @@ public class FixedSetIPFilter extends AbstractOptimizableDimFilter implements Di
         final SortedSet<IPAddress> addresses = getRanges().stream()
                 .map(this::map)
                 .filter(Objects::nonNull)
-                .sorted()
                 .collect(Collectors.toCollection(TreeSet::new));
         return new FixedSetIPFilterImpl(dimension, addresses);
     }
