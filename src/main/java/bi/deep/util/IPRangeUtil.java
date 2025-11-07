@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.druid.common.config.NullHandling;
 import org.apache.druid.error.InvalidInput;
 import org.apache.druid.java.util.common.IAE;
 
@@ -214,13 +215,13 @@ public final class IPRangeUtil {
 
     public static String getMatchingIPs(String input, List<IPAddress> ips) {
         if (StringUtils.isBlank(input) || CollectionUtils.isEmpty(ips)) {
-            return null;
+            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
         }
 
         IPSetContents ranges = extractIPSetContents(input);
 
         if (ranges.isEmpty()) {
-            return null;
+            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
         }
 
         // Filter matching IPs
@@ -230,7 +231,7 @@ public final class IPRangeUtil {
                 .collect(Collectors.toList());
 
         if (matchingIps.isEmpty()) {
-            return null;
+            return NullHandling.sqlCompatible() ? null : StringUtils.EMPTY;
         }
         if (matchingIps.size() == 1) {
             return matchingIps.get(0);

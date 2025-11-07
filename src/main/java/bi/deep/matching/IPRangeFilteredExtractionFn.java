@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import inet.ipaddr.IPAddress;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.druid.common.config.NullHandling;
 import org.apache.druid.query.extraction.DimExtractionFn;
 
 @JsonTypeName("ip-range-extraction-fn")
@@ -36,7 +38,10 @@ public class IPRangeFilteredExtractionFn extends DimExtractionFn {
     @Nullable
     @Override
     public String apply(@Nullable String value) {
-        return value == null ? null : IPRangeUtil.getMatchingIPs(value, ips);
+        if (NullHandling.sqlCompatible() && value == null) {
+            return null;
+        }
+        return value == null ? StringUtils.EMPTY : IPRangeUtil.getMatchingIPs(value, ips);
     }
 
     @Override
