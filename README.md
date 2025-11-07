@@ -117,7 +117,7 @@ Parameters
 This repository also includes native support for IP addresses, enabling faster filtering and virtual column
 functionality. To use this feature, define your column types as follows:
 
-1. **COMPLEX\<ipRange\> (`type: iprange`)**: For a single IP address, use the `iprange` type. It supports:
+1. **COMPLEX\<ipRange\> (`type: ipRange`)**: For a single IP address, use the `ipRange` type. It supports:
     - `IPv4` or `IPv6` addresses
     - `CIDR` notation
     - `Lower`-`upper` or `lower`/`high` range formats
@@ -128,7 +128,7 @@ functionality. To use this feature, define your column types as follows:
             "dimensionsSpec": {
                 "dimensions": [
                   {
-                    "type": "iprange",
+                    "type": "ipRange",
                     "name": "ip_addresses"
                   }
                 ]
@@ -136,8 +136,8 @@ functionality. To use this feature, define your column types as follows:
       }
     ```
 
-2. **COMPLEX\<ipRangeArray\> (`type: iprange`)**: For multiple IP addresses, use the
-   `ipRangeArray` type, which accepts a list of iprange values.
+2. **COMPLEX\<ipRangeArray\> (`type: ipRange`)**: For multiple IP addresses, use the
+   `ipRangeArray` type, which accepts a list of ipRange values.
 
    **Example**:
     ```json
