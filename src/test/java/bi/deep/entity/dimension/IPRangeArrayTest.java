@@ -31,6 +31,7 @@ import java.util.TreeSet;
 import java.util.stream.LongStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class IPRangeArrayTest {
@@ -118,13 +119,22 @@ class IPRangeArrayTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"192.168.1.1", "39.181.2.192", "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f"})
-    void testSingleIPContains(String addressStr) {
-        final IPAddress address = new IPAddressString(addressStr).getAddress();
-        final IPRangeArray rangeArray = IPRangeArray.fromArray(ImmutableList.of(addressStr));
-        final SortedSet<IPAddress> searchSet = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
-
+    @CsvSource({
+        "192.168.1.1,192.168.1.1,true",
+        "192.168.1.1,192.168.1.0/24,true",
+        "192.168.1.1,10.0.0.0/24,false",
+        "39.181.2.192,39.181.2.192,true",
+        "39.181.2.192,39.181.0.0/16,true",
+        "39.181.2.192,8.8.8.0/24,false",
+        "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f,6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f,true",
+        "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f,6f:ad2f:938:5f8f::/64,true",
+        "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f,2001:db8::/32,false"
+    })
+    void testSingleIPContains(String addressStr, String rangeStr, boolean expected) {
+        IPAddress address = new IPAddressString(addressStr).getAddress();
+        IPRangeArray rangeArray = IPRangeArray.fromArray(ImmutableList.of(rangeStr));
+        SortedSet<IPAddress> searchSet = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
         searchSet.add(address);
-        assertTrue(rangeArray.contains(searchSet));
+        assertEquals(expected, rangeArray.contains(searchSet));
     }
 }
