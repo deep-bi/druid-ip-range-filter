@@ -78,38 +78,44 @@ public class IPRangeArray implements Serializable, IPRangeHandler, Comparable<IP
     }
 
     @Override
-    public boolean contains(SortedSet<IPAddress> addresses) {
-        Iterator<IPAddressRange> rangeIter = addressRanges.iterator();
-        Iterator<IPAddress> addressIter = addresses.iterator();
+    public boolean contains(final SortedSet<IPAddress> addresses) {
+        final Iterator<IPAddress> addressIterator = addresses.iterator();
+        final Iterator<IPAddressRange> rangeIterator = addressRanges.iterator();
 
-        if (!rangeIter.hasNext() || !addressIter.hasNext()) {
-            return false; // One set is empty
+        if (!addressIterator.hasNext() || !rangeIterator.hasNext()) {
+            return false; // One set is empty, might wanna return true if addresses are empty?
         }
 
-        IPAddressRange range = rangeIter.next();
-        IPAddress address = addressIter.next();
+        IPAddress currentAddress = addressIterator.next();
+        IPAddressRange currentRange = rangeIterator.next();
 
-        while (addressIter.hasNext() || address.compareTo(range.getLower()) <= 0) {
-            if (address.compareTo(range.getLower()) < 0) {
-                if (!addressIter.hasNext()) {
-                    break;
-                }
-                address = addressIter.next();
-            } else {
-                if (range.contains(address)) {
-                    return true;
-                }
 
-                if (!rangeIter.hasNext()) {
-                    break;
+        while (currentAddress != null && currentRange != null) {
+            int compareToLower = currentAddress.compareTo(currentRange.getLower());
+            if (compareToLower < 0) {
+                if (addressIterator.hasNext()) {
+                    currentAddress = addressIterator.next();
+                } else {
+                    currentAddress = null;
                 }
-                range = rangeIter.next();
+                continue;
             }
+
+            int compareToUpper = currentAddress.compareTo(currentRange.getUpper());
+            if (compareToUpper > 0) {
+                if (rangeIterator.hasNext()) {
+                    currentRange = rangeIterator.next();
+                } else {
+                    currentRange = null;
+                }
+                continue;
+            }
+
+            return true;
         }
 
         return false;
     }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
