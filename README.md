@@ -212,6 +212,19 @@ Parameters
 
 ---
 
+### Transform Native type to MultiValue String
+ Use `ip_native_stringify` expression function to convert native type to multivalue string
+
+**Example:**
+
+```json
+{
+  "type": "expression",
+  "name": "ip-address-str",
+  "expression": "ip_native_stringify(\"<column-name\")"
+}
+```
+
 ## How to Use
 
 Using Filters
