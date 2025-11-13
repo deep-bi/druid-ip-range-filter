@@ -89,7 +89,6 @@ public class IPRangeArray implements Serializable, IPRangeHandler, Comparable<IP
         IPAddress currentAddress = addressIterator.next();
         IPAddressRange currentRange = rangeIterator.next();
 
-
         while (currentAddress != null && currentRange != null) {
             int compareToLower = currentAddress.compareTo(currentRange.getLower());
             if (compareToLower < 0) {
@@ -116,6 +115,7 @@ public class IPRangeArray implements Serializable, IPRangeHandler, Comparable<IP
 
         return false;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
