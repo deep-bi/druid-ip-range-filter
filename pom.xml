@@ -122,7 +122,7 @@
           <archive>
             <manifestEntries>
               <Implementation-Title>${project.artifactId}</Implementation-Title>
-              <Implementation-Version>${project.version}-${druid.version}</Implementation-Version>
+              <Implementation-Version>${druid.version}-${project.version}</Implementation-Version>
               <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
             </manifestEntries>
           </archive>
