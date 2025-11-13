@@ -22,15 +22,18 @@ import bi.deep.entity.dimension.IPRangeDimensionHandler;
 import bi.deep.entity.dimension.IPRangeDimensionSchema;
 import bi.deep.entity.dimension.IPRangeSerde;
 import bi.deep.filtering.ip.range.IPNativeRangeMatchingFilter;
-import bi.deep.matching.IPNativeRangeArrayFilteredVirtualColumn;
+import bi.deep.filtering.ip.range.impl.IPNativeStringifyExprMacro;
 import bi.deep.matching.IPNativeRangeArrayFilteredDimensionSpec;
+import bi.deep.matching.IPNativeRangeArrayFilteredVirtualColumn;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Binder;
+import com.google.inject.multibindings.Multibinder;
 import java.util.Collections;
 import java.util.List;
 import org.apache.druid.initialization.DruidModule;
+import org.apache.druid.math.expr.ExprMacroTable;
 import org.apache.druid.segment.DimensionHandlerUtils;
 import org.apache.druid.segment.column.ColumnType;
 import org.apache.druid.segment.serde.ComplexMetrics;
@@ -44,6 +47,9 @@ public class IPRangeDimensionModule implements DruidModule {
     @Override
     public void configure(Binder binder) {
         registerSerde();
+        Multibinder.newSetBinder(binder, ExprMacroTable.ExprMacro.class)
+                .addBinding()
+                .to(IPNativeStringifyExprMacro.class);
     }
 
     @Override
