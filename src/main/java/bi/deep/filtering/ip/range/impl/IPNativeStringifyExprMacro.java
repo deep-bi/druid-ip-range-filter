@@ -34,18 +34,21 @@ public class IPNativeStringifyExprMacro implements ExprMacroTable.ExprMacro {
 
             @Override
             public ExprEval<?> eval(ObjectBinding bindings) {
-                ExprEval<?> input = args.get(0).eval(bindings);
+                Object input = args.get(0).eval(bindings).value();
 
-                if (input.value() == null) {
-                    return ExprEval.ofStringArray(null);
+                final String[] arr;
+                if (input == null) {
+                    arr = null;
+                } else if (input instanceof IPRangeArray) {
+                    arr = ((IPRangeArray) input)
+                        .getAddressRanges()
+                        .stream()
+                        .map(Objects::toString)
+                        .toArray(String[]::new);
+                } else {
+                    arr = new String[]{Objects.toString(input)};
                 }
-
-                if (input.value() instanceof IPRangeArray) {
-                    return ExprEval.ofStringArray(((IPRangeArray) input.value())
-                            .getAddressRanges().stream().map(Objects::toString).toArray());
-                }
-
-                return ExprEval.ofStringArray(new String[] {Objects.toString(input.value())});
+                return ExprEval.ofStringArray(arr);
             }
         }
 

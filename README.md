@@ -212,8 +212,9 @@ Parameters
 
 ---
 
-### Transform Native type to MultiValue String
- Use `ip_native_stringify` expression function to convert native type to multivalue string
+### Transform native type to a multi-value string
+
+To convert the complex native IP format into a string use the `ip_native_stringify` expression function.
 
 **Example:**
 
