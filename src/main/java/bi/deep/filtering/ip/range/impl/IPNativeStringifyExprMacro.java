@@ -21,12 +21,16 @@ import java.util.Objects;
 import org.apache.druid.math.expr.Expr;
 import org.apache.druid.math.expr.ExprEval;
 import org.apache.druid.math.expr.ExprMacroTable;
+import org.apache.druid.math.expr.ExpressionType;
+import javax.annotation.Nullable;
 
 public class IPNativeStringifyExprMacro implements ExprMacroTable.ExprMacro {
     private static final String FN_NAME = "ip_native_stringify";
 
     @Override
     public Expr apply(List<Expr> args) {
+        this.validationHelperCheckArgumentCount(args, 1);
+
         class IPNativeExtractExpr extends ExprMacroTable.BaseScalarMacroFunctionExpr {
             public IPNativeExtractExpr(List<Expr> macroArgs) {
                 super(IPNativeStringifyExprMacro.this, macroArgs);
@@ -49,6 +53,12 @@ public class IPNativeStringifyExprMacro implements ExprMacroTable.ExprMacro {
                     arr = new String[]{Objects.toString(input)};
                 }
                 return ExprEval.ofStringArray(arr);
+            }
+
+            @Nullable
+            @Override
+            public ExpressionType getOutputType(InputBindingInspector inspector) {
+                return ExpressionType.STRING_ARRAY;
             }
         }
 
