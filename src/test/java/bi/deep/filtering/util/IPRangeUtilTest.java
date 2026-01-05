@@ -18,6 +18,7 @@ package bi.deep.filtering.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bi.deep.entity.IPSetContents;
@@ -34,6 +35,8 @@ import java.util.Set;
 
 import org.apache.druid.common.config.NullHandling;
 import org.junit.jupiter.api.BeforeAll;
+import org.apache.druid.error.DruidException;
+import org.apache.druid.java.util.common.IAE;
 import org.junit.jupiter.api.Test;
 
 class IPRangeUtilTest {
@@ -155,5 +158,73 @@ class IPRangeUtilTest {
         IPAddressRange first = IPRangeUtil.fromString("10.0.0.12/24"); // normalized to 10.0.0.0/24
         IPAddressRange second = IPRangeUtil.fromString("10.0.0.0/24");
         assertEquals(first, second);
+    }
+
+    @Test
+    void testArrowIpv4Basic() {
+        IPAddressRange range = IPRangeUtil.fromString("10.10.10.10 -> 10.10.10.20");
+
+        IPAddress lower = range.getLower();
+        IPAddress upper = range.getUpper();
+
+        assertEquals("10.10.10.10", lower.toString());
+        assertEquals("10.10.10.20", upper.toString());
+    }
+
+    @Test
+    void testArrowIpv4WithSpaces() {
+        IPAddressRange range = IPRangeUtil.fromString("  10.0.0.1  ->  10.0.0.10  ");
+        assertEquals("10.0.0.1", range.getLower().toString());
+        assertEquals("10.0.0.10", range.getUpper().toString());
+    }
+
+    @Test
+    void testArrowIpv6() {
+        IPAddressRange range = IPRangeUtil.fromString("2001:db8::1 -> 2001:db8::ff");
+        assertEquals("2001:db8::1", range.getLower().toString());
+        assertEquals("2001:db8::ff", range.getUpper().toString());
+    }
+
+    @Test
+    void testArrowSameIp() {
+        IPAddressRange range = IPRangeUtil.fromString("192.168.1.5->192.168.1.5");
+        assertEquals("192.168.1.5", range.getLower().toString());
+        assertEquals("192.168.1.5", range.getUpper().toString());
+    }
+
+    @Test
+    void testArrowInvalidLowerIp() {
+        Exception ex = assertThrows(DruidException.class, () -> IPRangeUtil.fromString("10.0.0.x->10.0.0.10"));
+        assertTrue(ex.getMessage().contains("Invalid lower IP"));
+    }
+
+    @Test
+    void testArrowInvalidUpperIp() {
+        Exception ex = assertThrows(DruidException.class, () -> IPRangeUtil.fromString("10.0.0.1->10.0.0.x"));
+        assertTrue(ex.getMessage().contains("Invalid upper IP"));
+    }
+
+    @Test
+    void testArrowMissingLeftSide() {
+        Exception ex = assertThrows(DruidException.class, () -> IPRangeUtil.fromString("->10.0.0.10"));
+        assertTrue(ex.getMessage().contains("Malformed"));
+    }
+
+    @Test
+    void testArrowMissingRightSide() {
+        Exception ex = assertThrows(DruidException.class, () -> IPRangeUtil.fromString("10.0.0.1->"));
+        assertTrue(ex.getMessage().contains("Malformed"));
+    }
+
+    @Test
+    void testArrowIpv4Ipv6Mismatch() {
+        Exception ex = assertThrows(IAE.class, () -> IPRangeUtil.fromString("10.0.0.1 -> 2001:db8::1"));
+        assertTrue(ex.getMessage().contains("IPv4/IPv6 mismatch"));
+    }
+
+    @Test
+    void testMultipleArrowsNotAllowed() {
+        Exception ex = assertThrows(DruidException.class, () -> IPRangeUtil.fromString("10.0.0.1->10.0.0.2->10.0.0.3"));
+        assertTrue(ex.getMessage().contains("Multiple"));
     }
 }
