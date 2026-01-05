@@ -103,14 +103,12 @@ class IPRangeTest {
         return Stream.of(
                 ParseCase.err(null, DruidException.class, "Range cannot be null or empty"),
                 ParseCase.err("", DruidException.class, "Range cannot be null or empty"),
-                ParseCase.err(
-                        "invalidLowerIP/0.0.0.0", DruidException.class, "Invalid lower IP 'invalidLowerIP/0.0.0.0'."),
-                ParseCase.err(
-                        "0.0.0.0/invalidUpperIP", DruidException.class, "Invalid upper IP '0.0.0.0/invalidUpperIP'."),
+                ParseCase.err("invalidLowerIP/0.0.0.0", DruidException.class, "Invalid lower IP 'invalidLowerIP'."),
+                ParseCase.err("0.0.0.0/invalidUpperIP", DruidException.class, "Invalid upper IP 'invalidUpperIP'."),
                 ParseCase.err(
                         "999.999.999.999",
                         DruidException.class,
-                        "Malformed input '999.999.999.999'. Expected IP address, ip/prefix (CIDR), lower/upper or lower-upper."),
+                        "Malformed input '999.999.999.999'. Expected IP, CIDR, or range."),
                 ParseCase.err("10.0.0.1/", DruidException.class, "Malformed '10.0.0.1/'. Empty side around separator."),
                 ParseCase.err("/24", DruidException.class, "Malformed '/24'. Empty side around separator."),
                 ParseCase.err(
