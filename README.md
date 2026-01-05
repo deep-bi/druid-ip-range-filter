@@ -92,7 +92,7 @@ functionality. To use this feature, define your column types as follows:
 1. **COMPLEX\<ipRange\> (`type: iprange`)**: For a single IP address, use the `iprange` type. It supports:
     - `IPv4` or `IPv6` addresses
     - `CIDR` notation
-    - `Lower`-`upper` or `lower`/`high` range formats
+    - `lower`-`upper`, `lower`/`high`, or `lower` -> `upper` range formats
 
       **Example**:
     ```json
