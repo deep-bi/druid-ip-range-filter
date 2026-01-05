@@ -120,7 +120,7 @@ functionality. To use this feature, define your column types as follows:
 1. **COMPLEX\<ipRange\> (`type: ipRange`)**: For a single IP address, use the `ipRange` type. It supports:
     - `IPv4` or `IPv6` addresses
     - `CIDR` notation
-    - `lower`-`upper`, `lower`/`high`, or `lower` -> `upper` range formats
+    - `lower-upper`, `lower/high`, or `lower -> upper` range formats
 
       **Example**:
     ```json
@@ -136,7 +136,7 @@ functionality. To use this feature, define your column types as follows:
       }
     ```
 
-2. **COMPLEX\<ipRangeArray\> (`type: ipRange`)**: For multiple IP addresses, use the
+2. **COMPLEX\<ipRangeArray\> (`type: ipRangeArray`)**: For multiple IP addresses, use the
    `ipRangeArray` type, which accepts a list of ipRange values.
 
    **Example**:
