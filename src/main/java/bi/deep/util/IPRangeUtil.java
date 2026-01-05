@@ -48,76 +48,56 @@ public final class IPRangeUtil {
     private static final Pattern CIDR_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+/\\d+$");
     private static final Pattern IP_REGEX = Pattern.compile("^[0-9A-Fa-f:.]+$");
     private static final int PARALLEL_LIMIT = 200;
-    private static final char SLASH = '/';
-    private static final char HYPHEN = '-';
-    private static final char EN_DASH = '–';
 
     private IPRangeUtil() {
         throw new AssertionError("No bi.deep.util.IPRangeUtil instances for you!");
     }
 
-    public static IPAddressRange fromString(String range) {
-        if (StringUtils.isBlank(range)) {
+    public static IPAddressRange fromString(String input) {
+        if (StringUtils.isBlank(input)) {
             throw InvalidInput.exception("Range cannot be null or empty");
         }
-        range = range.trim();
 
-        final int hy = range.indexOf(HYPHEN);
-        final int en = range.indexOf(EN_DASH);
-        final int sl = range.indexOf(SLASH);
+        final String range = input.trim();
+        final SeparatorMatch match = SeparatorMatch.detect(range);
 
-        int kinds = (sl >= 0 ? 1 : 0) + (hy >= 0 ? 1 : 0) + (en >= 0 ? 1 : 0);
-
-        if (kinds > 1) {
-            throw InvalidInput.exception("Expected exactly one separator: '/', '-' or '–': '%s'", range);
+        if (match.separator == Separator.NONE) { // Single IP
+            return parseIPAddress(range, "Malformed input '%s'. Expected IP, CIDR, or range.");
         }
 
-        if (kinds == 0) { // single IP
-            IPAddress ip = new IPAddressString(range).getAddress();
-            if (ip == null) {
-                throw InvalidInput.exception(
-                        "Malformed input '%s'. Expected IP address, ip/prefix (CIDR), lower/upper or lower-upper.",
-                        range);
-            }
-            return ip;
-        }
-
-        final int sepPos = (hy >= 0) ? hy : (en >= 0 ? en : sl);
-        final char sep = (hy >= 0) ? HYPHEN : (en >= 0 ? EN_DASH : SLASH);
-
-        if (range.indexOf(sep, sepPos + 1) != -1) {
-            throw InvalidInput.exception("Multiple '%s' in '%s'", sep, range);
-        }
-
-        final String left = range.substring(0, sepPos).trim();
-        final String right = range.substring(sepPos + 1).trim();
+        final String left = range.substring(0, match.position).trim();
+        final String right =
+                range.substring(match.position + match.separator.length).trim();
 
         if (left.isEmpty() || right.isEmpty()) {
             throw InvalidInput.exception("Malformed '%s'. Empty side around separator.", range);
         }
 
-        IPAddress lower;
-        IPAddress upper;
-
-        if (sep == SLASH && isDigits(right)) {
-            IPAddress cidr = new IPAddressString(range).getAddress();
-            if (cidr == null) {
-                throw InvalidInput.exception("Malformed CIDR '%s'. Expected ip/prefix.", range);
-            }
-            IPAddress block = cidr.toPrefixBlock(); // normalization
-            return block.toSequentialRange();
-        } else {
-            lower = new IPAddressString(left).getAddress();
-            if (lower == null) throw InvalidInput.exception("Invalid lower IP '%s'.", range);
-            upper = new IPAddressString(right).getAddress();
-            if (upper == null) throw InvalidInput.exception("Invalid upper IP '%s'.", range);
+        // CIDR: ip/prefix
+        if (match.separator == Separator.SLASH && isDigits(right)) {
+            return parseIPAddress(range, "Malformed CIDR '%s'. Expected ip/prefix.")
+                    .toPrefixBlock()
+                    .toSequentialRange();
         }
+
+        // IP range
+        IPAddress lower = parseIPAddress(left, "Invalid lower IP '%s'.");
+        IPAddress upper = parseIPAddress(right, "Invalid upper IP '%s'.");
 
         if (!lower.getIPVersion().equals(upper.getIPVersion())) {
             throw new IAE("IPv4/IPv6 mismatch: '%s' vs '%s'.", lower, upper);
         }
 
         return lower.spanWithRange(upper);
+    }
+
+    private static IPAddress parseIPAddress(String value, String errorMessage) {
+        IPAddress ip = new IPAddressString(value).getAddress();
+
+        if (ip == null) {
+            throw InvalidInput.exception(errorMessage, value);
+        }
+        return ip;
     }
 
     public static int getSize(IPAddressRange range) {
@@ -248,5 +228,66 @@ public final class IPRangeUtil {
                 .map(ip -> new IPAddressString(ip).getAddress())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    enum Separator {
+        ARROW("->", 2),
+        SLASH("/", 1),
+        HYPHEN("-", 1),
+        EN_DASH("–", 1),
+        NONE(null, 0);
+
+        private final String token;
+        private final int length;
+
+        Separator(String token, int length) {
+            this.token = token;
+            this.length = length;
+        }
+    }
+
+    private static final class SeparatorMatch {
+        private final Separator separator;
+        private final int position;
+
+        private SeparatorMatch(Separator separator, int position) {
+            this.separator = separator;
+            this.position = position;
+        }
+
+        public static SeparatorMatch detect(String value) {
+            // Highest priority: ->
+            int arrowPos = value.indexOf(Separator.ARROW.token);
+
+            if (arrowPos >= 0) {
+                ensureSingle(value, Separator.ARROW, arrowPos);
+                return new SeparatorMatch(Separator.ARROW, arrowPos);
+            }
+
+            Separator found = null;
+            int foundPos = -1;
+
+            for (Separator sep : new Separator[] {Separator.SLASH, Separator.HYPHEN, Separator.EN_DASH}) {
+                int pos = value.indexOf(sep.token);
+
+                if (pos >= 0) {
+                    if (found != null) {
+                        throw InvalidInput.exception(
+                                "Expected exactly one separator: '/', '-', '–', or '->': '%s'", value);
+                    }
+                    ensureSingle(value, sep, pos);
+                    found = sep;
+                    foundPos = pos;
+                }
+            }
+
+            return new SeparatorMatch(found == null ? Separator.NONE : found, foundPos);
+        }
+
+        private static void ensureSingle(String value, Separator sep, int firstPos) {
+            if (value.indexOf(sep.token, firstPos + sep.length) != -1) {
+                throw InvalidInput.exception("Multiple '%s' in '%s'", sep.token, value);
+            }
+        }
     }
 }
