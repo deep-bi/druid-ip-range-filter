@@ -16,6 +16,7 @@
 package bi.deep.filtering.ip.range.impl;
 
 import bi.deep.entity.dimension.IPRangeArray;
+import bi.deep.util.IPRangeUtil;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -45,7 +46,9 @@ public class IPNativeStringifyExprMacro implements ExprMacroTable.ExprMacro {
                     arr = null;
                 } else if (input instanceof IPRangeArray) {
                     arr = ((IPRangeArray) input)
-                            .getAddressRanges().stream().map(Objects::toString).toArray(String[]::new);
+                            .getAddressRanges().stream()
+                                    .map(IPRangeUtil::toString)
+                                    .toArray(String[]::new);
                 } else {
                     arr = new String[] {Objects.toString(input)};
                 }
