@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -49,6 +50,7 @@ class IPRangeArrayTest {
 
         assertFalse(range.getLower().isIPv6());
         assertTrue(range.getLower().isIPv4());
+        assertEquals("[0.0.0.0-255.255.255.255]", ipV4Range.toString());
     }
 
     @Test
@@ -66,6 +68,8 @@ class IPRangeArrayTest {
 
         assertTrue(range.getLower().isIPv6());
         assertFalse(range.getLower().isIPv4());
+        assertEquals(
+                "[6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f-58db:b320:7914:41f9:12ca:5ccc:9c05:cd1e]", ipV6Range.toString());
     }
 
     @ParameterizedTest
@@ -136,5 +140,35 @@ class IPRangeArrayTest {
         SortedSet<IPAddress> searchSet = new TreeSet<>(ADDRESS_LOW_VALUE_COMPARATOR);
         searchSet.add(address);
         assertEquals(expected, rangeArray.contains(searchSet));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "192.168.1.5->192.168.1.5,[192.168.1.5-192.168.1.5]",
+        "192.168.1.5,[192.168.1.5]",
+        "10.0.0.0/24,[10.0.0.0-10.0.0.255]",
+        "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f,[6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f]",
+        "6f:ad2f:938:5f8f::/64,[6f:ad2f:938:5f8f::-6f:ad2f:938:5f8f:ffff:ffff:ffff:ffff]"
+    })
+    void testToString(String input, String output) {
+        IPRangeArray range = IPRangeArray.fromArray(List.of(input));
+        assertEquals(output, range.toString());
+    }
+
+    @Test
+    void testToStringWithElements() {
+        IPRangeArray range = IPRangeArray.fromArray(List.of(
+                "10.0.0.0/24",
+                "192.168.1.5->192.168.5.10",
+                "6f:ad2f:938:5f8f::/64",
+                "192.168.1.5",
+                "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f"));
+        assertEquals(
+                "[10.0.0.0-10.0.0.255,"
+                        + "192.168.1.5-192.168.5.10,"
+                        + "6f:ad2f:938:5f8f::-6f:ad2f:938:5f8f:ffff:ffff:ffff:ffff,"
+                        + "192.168.1.5,"
+                        + "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f]",
+                range.toString());
     }
 }

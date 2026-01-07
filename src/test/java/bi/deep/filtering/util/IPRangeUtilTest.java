@@ -30,6 +30,7 @@ import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.format.IPAddressRange;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.druid.error.DruidException;
@@ -218,5 +219,13 @@ class IPRangeUtilTest {
     void testMultipleArrowsNotAllowed() {
         Exception ex = assertThrows(DruidException.class, () -> IPRangeUtil.fromString("10.0.0.1->10.0.0.2->10.0.0.3"));
         assertTrue(ex.getMessage().contains("Multiple"));
+    }
+
+    @Test
+    void testToStringForEmptyValues() {
+        assertEquals("null", IPRangeUtil.toString((IPAddressRange) null));
+
+        assertEquals("[]", IPRangeUtil.toString((Collection<IPAddressRange>) null));
+        assertEquals("[]", IPRangeUtil.toString(List.of()));
     }
 }

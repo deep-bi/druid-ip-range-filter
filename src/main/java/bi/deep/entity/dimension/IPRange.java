@@ -105,7 +105,7 @@ public class IPRange implements Serializable, IPRangeHandler, Comparable<IPRange
 
     @Override
     public String toString() {
-        return Objects.toString(addressRange);
+        return IPRangeUtil.toString(addressRange);
     }
 
     @Override
