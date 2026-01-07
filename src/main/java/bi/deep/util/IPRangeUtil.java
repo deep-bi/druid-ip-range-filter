@@ -26,12 +26,14 @@ import inet.ipaddr.format.IPAddressRange;
 import inet.ipaddr.ipv4.IPv4Address;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -289,5 +291,20 @@ public final class IPRangeUtil {
                 throw InvalidInput.exception("Multiple '%s' in '%s'", sep.token, value);
             }
         }
+    }
+
+    public static String toString(IPAddressRange obj) {
+        if (obj instanceof IPAddress) {
+            return obj.toString();
+        }
+
+        Function<IPAddress, String> stringer = IPAddress::toCanonicalString;
+        return (obj == null) ? "null" : stringer.apply(obj.getLower()) + "-" + stringer.apply(obj.getUpper());
+    }
+
+    public static String toString(Collection<IPAddressRange> addressRanges) {
+        return CollectionUtils.isEmpty(addressRanges)
+                ? "[]"
+                : addressRanges.stream().map(IPRangeUtil::toString).collect(Collectors.joining(",", "[", "]"));
     }
 }

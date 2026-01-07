@@ -137,7 +137,7 @@ public class IPRangeArray implements Serializable, IPRangeHandler, Comparable<IP
 
     @Override
     public String toString() {
-        return Objects.toString(addressRanges);
+        return IPRangeUtil.toString(addressRanges);
     }
 
     @Override
