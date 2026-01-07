@@ -15,6 +15,8 @@
  */
 package bi.deep.filtering.ip.range.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import bi.deep.entity.dimension.IPRange;
 import bi.deep.entity.dimension.IPRangeArray;
 import com.google.common.collect.ImmutableList;
@@ -38,11 +40,25 @@ class IPNativeStringifyExprMacroTest {
         Expr expr = Parser.parse("ip_native_stringify(ipAddress)", MACRO_TABLE);
         ExprEval<?> eval = expr.eval(inputBindings);
 
-        Assertions.assertEquals(ExpressionType.STRING_ARRAY, eval.type());
+        assertEquals(ExpressionType.STRING_ARRAY, eval.type());
 
         Object[] value = eval.asArray();
-        Assertions.assertEquals(1, value.length);
-        Assertions.assertEquals("255.255.255.255", value[0]);
+        assertEquals(1, value.length);
+        assertEquals("255.255.255.255", value[0]);
+    }
+
+    @Test
+    void testNativeIPRangeWithUpperAndLower() {
+        Expr.ObjectBinding inputBindings = InputBindings.forInputSupplier(
+                "ipAddress", ExpressionType.UNKNOWN_COMPLEX, () -> IPRange.from("0.0.0.0 -> 255.255.255.255"));
+        Expr expr = Parser.parse("ip_native_stringify(ipAddress)", MACRO_TABLE);
+        ExprEval<?> eval = expr.eval(inputBindings);
+
+        assertEquals(ExpressionType.STRING_ARRAY, eval.type());
+
+        Object[] value = eval.asArray();
+        assertEquals(1, value.length);
+        assertEquals("0.0.0.0-255.255.255.255", value[0]);
     }
 
     @Test
@@ -54,11 +70,28 @@ class IPNativeStringifyExprMacroTest {
         Expr expr = Parser.parse("ip_native_stringify(ipAddress)", MACRO_TABLE);
         ExprEval<?> eval = expr.eval(inputBindings);
 
-        Assertions.assertEquals(ExpressionType.STRING_ARRAY, eval.type());
+        assertEquals(ExpressionType.STRING_ARRAY, eval.type());
 
         Object[] value = eval.asArray();
-        Assertions.assertEquals(1, value.length);
-        Assertions.assertEquals("255.255.255.255", value[0]);
+        assertEquals(1, value.length);
+        assertEquals("255.255.255.255", value[0]);
+    }
+
+    @Test
+    void testNativeIPRangeArrayWithUpperAndLower() {
+        Expr.ObjectBinding inputBindings = InputBindings.forInputSupplier(
+                "ipAddress",
+                ExpressionType.UNKNOWN_COMPLEX,
+                () -> IPRangeArray.fromArray(ImmutableList.of("0.0.0.0 -> 255.255.255.255", "10.0.0.0/24")));
+        Expr expr = Parser.parse("ip_native_stringify(ipAddress)", MACRO_TABLE);
+        ExprEval<?> eval = expr.eval(inputBindings);
+
+        assertEquals(ExpressionType.STRING_ARRAY, eval.type());
+
+        Object[] value = eval.asArray();
+        assertEquals(2, value.length);
+        assertEquals("0.0.0.0-255.255.255.255", value[0]);
+        assertEquals("10.0.0.0-10.0.0.255", value[1]);
     }
 
     @Test
@@ -68,7 +101,7 @@ class IPNativeStringifyExprMacroTest {
         Expr expr = Parser.parse("ip_native_stringify(ipAddress)", MACRO_TABLE);
         ExprEval<?> eval = expr.eval(inputBindings);
 
-        Assertions.assertEquals(ExpressionType.STRING_ARRAY, eval.type());
+        assertEquals(ExpressionType.STRING_ARRAY, eval.type());
 
         Object[] value = eval.asArray();
         Assertions.assertNull(value);

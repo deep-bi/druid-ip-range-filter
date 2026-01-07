@@ -31,6 +31,7 @@ import java.util.stream.LongStream;
 import org.apache.druid.error.DruidException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class IPRangeTest {
@@ -45,6 +46,7 @@ class IPRangeTest {
 
         assertFalse(ipV4Range.getAddressRange().getLower().isIPv6());
         assertTrue(ipV4Range.getAddressRange().getLower().isIPv4());
+        assertEquals("0.0.0.0-255.255.255.255", ipV4Range.toString());
     }
 
     @Test
@@ -61,6 +63,8 @@ class IPRangeTest {
                 ipV6Range.getAddressRange().getUpper().toString());
         assertTrue(ipV6Range.getAddressRange().getLower().isIPv6());
         assertFalse(ipV6Range.getAddressRange().getLower().isIPv4());
+        assertEquals(
+                "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f-58db:b320:7914:41f9:12ca:5ccc:9c05:cd1e", ipV6Range.toString());
     }
 
     @ParameterizedTest
@@ -144,5 +148,18 @@ class IPRangeTest {
         DruidException exception =
                 assertThrows(DruidException.class, () -> IPRange.fromString("0.0.0.0/invalidUpperIP"));
         assertEquals("Invalid upper IP 'invalidUpperIP'.", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "192.168.1.5->192.168.1.5,192.168.1.5-192.168.1.5",
+        "192.168.1.5,192.168.1.5",
+        "10.0.0.0/24,10.0.0.0-10.0.0.255",
+        "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f,6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f",
+        "6f:ad2f:938:5f8f::/64,6f:ad2f:938:5f8f::-6f:ad2f:938:5f8f:ffff:ffff:ffff:ffff"
+    })
+    void testToString(String input, String output) {
+        IPRange range = IPRange.fromString(input);
+        assertEquals(output, range.toString());
     }
 }
