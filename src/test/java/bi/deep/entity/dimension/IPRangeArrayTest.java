@@ -151,18 +151,21 @@ class IPRangeArrayTest {
         "6f:ad2f:938:5f8f::/64,[6f:ad2f:938:5f8f::-6f:ad2f:938:5f8f:ffff:ffff:ffff:ffff]"
     })
     void testToString(String input, String output) {
-        IPRangeArray range = IPRangeArray.fromArray(List.of(input));
+        List<Object> values = new java.util.ArrayList<>();
+        values.add(input);
+        IPRangeArray range = IPRangeArray.fromArray(values);
         assertEquals(output, range.toString());
     }
 
     @Test
     void testToStringWithElements() {
-        IPRangeArray range = IPRangeArray.fromArray(List.of(
-                "10.0.0.0/24",
-                "192.168.1.5->192.168.5.10",
-                "6f:ad2f:938:5f8f::/64",
-                "192.168.1.5",
-                "6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f"));
+        List<Object> values = new java.util.ArrayList<>();
+        values.add("10.0.0.0/24");
+        values.add("192.168.1.5->192.168.5.10");
+        values.add("6f:ad2f:938:5f8f::/64");
+        values.add("192.168.1.5");
+        values.add("6f:ad2f:938:5f8f:7f94:ddd0:e1a5:4f");
+        IPRangeArray range = IPRangeArray.fromArray(values);
         assertEquals(
                 "[10.0.0.0-10.0.0.255,"
                         + "192.168.1.5-192.168.5.10,"
