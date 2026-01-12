@@ -234,6 +234,7 @@ class IPRangeUtilTest {
         assertEquals("null", IPRangeUtil.toString((IPAddressRange) null));
 
         assertEquals("[]", IPRangeUtil.toString((Collection<IPAddressRange>) null));
-        assertEquals("[]", IPRangeUtil.toString(List.of()));
+        List<IPAddressRange> addressRanges = new java.util.ArrayList<>();
+        assertEquals("[]", IPRangeUtil.toString(addressRanges));
     }
 }
