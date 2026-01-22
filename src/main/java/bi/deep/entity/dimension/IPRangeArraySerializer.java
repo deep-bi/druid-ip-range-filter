@@ -15,6 +15,7 @@
  */
 package bi.deep.entity.dimension;
 
+import bi.deep.util.IPRangeUtil;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -27,7 +28,7 @@ public class IPRangeArraySerializer extends JsonSerializer<IPRangeArray> {
         gen.writeStartArray();
 
         for (IPAddressRange ip : value.getAddressRanges()) {
-            gen.writeString(ip.toString());
+            gen.writeString(IPRangeUtil.toString(ip));
         }
         gen.writeEndArray();
     }
