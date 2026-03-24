@@ -29,7 +29,7 @@
   <description>IP Range Filters extension for Apache Druid.</description>
 
   <properties>
-    <druid.version>32.0.1</druid.version>
+    <druid.version>33.0.0</druid.version>
     <java.version>11</java.version>
   </properties>
 
