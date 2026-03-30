@@ -42,27 +42,27 @@ public class MatchPredicateFactory implements DruidPredicateFactory {
 
     @Override
     public DruidObjectPredicate<String> makeStringPredicate() {
-        return null;
+        return ignore -> DruidPredicateMatch.FALSE;
     }
 
     @Override
     public DruidLongPredicate makeLongPredicate() {
-        return null;
+        return ignore -> DruidPredicateMatch.FALSE;
     }
 
     @Override
     public DruidFloatPredicate makeFloatPredicate() {
-        return null;
+        return ignore -> DruidPredicateMatch.FALSE;
     }
 
     @Override
     public DruidDoublePredicate makeDoublePredicate() {
-        return null;
+        return ignore -> DruidPredicateMatch.FALSE;
     }
 
     @Override
     public DruidObjectPredicate<Object[]> makeArrayPredicate(@Nullable TypeSignature<ValueType> inputType) {
-        return null;
+        return ignore -> DruidPredicateMatch.FALSE;
     }
 
     @Override
