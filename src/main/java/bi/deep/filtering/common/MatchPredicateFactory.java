@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.Nullable;
+import org.apache.druid.error.DruidException;
 import org.apache.druid.query.filter.DruidDoublePredicate;
 import org.apache.druid.query.filter.DruidFloatPredicate;
 import org.apache.druid.query.filter.DruidLongPredicate;
@@ -42,27 +43,27 @@ public class MatchPredicateFactory implements DruidPredicateFactory {
 
     @Override
     public DruidObjectPredicate<String> makeStringPredicate() {
-        return ignore -> DruidPredicateMatch.FALSE;
+        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
     }
 
     @Override
     public DruidLongPredicate makeLongPredicate() {
-        return ignore -> DruidPredicateMatch.FALSE;
+        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
     }
 
     @Override
     public DruidFloatPredicate makeFloatPredicate() {
-        return ignore -> DruidPredicateMatch.FALSE;
+        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
     }
 
     @Override
     public DruidDoublePredicate makeDoublePredicate() {
-        return ignore -> DruidPredicateMatch.FALSE;
+        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
     }
 
     @Override
     public DruidObjectPredicate<Object[]> makeArrayPredicate(@Nullable TypeSignature<ValueType> inputType) {
-        return ignore -> DruidPredicateMatch.FALSE;
+        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
     }
 
     @Override
@@ -77,7 +78,8 @@ public class MatchPredicateFactory implements DruidPredicateFactory {
                 return DruidPredicateMatch.of(ipRange.contains(ips));
             }
 
-            return DruidPredicateMatch.of(false);
+            throw DruidException.defensive(
+                    "ip_native_match equality is supported only for ipRange or ipRangeArray types");
         };
     }
 }
