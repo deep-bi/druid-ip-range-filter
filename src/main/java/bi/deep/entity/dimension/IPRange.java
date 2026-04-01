@@ -35,7 +35,8 @@ import org.apache.druid.java.util.common.IAE;
 @JsonSerialize(using = IPRangeSerializer.class)
 public class IPRange implements Serializable, IPRangeHandler, Comparable<IPRange> {
     public static final IPRange EMPTY = new IPRange(null);
-    public static final Comparator<IPRange> COMPARATOR = Comparator.nullsFirst(IPRange::compareTo);
+    public static final Comparator<IPRange> COMPARATOR = Comparator.nullsFirst(
+            Comparator.comparing(IPRange::getAddressRange, Comparator.nullsFirst(Comparator.naturalOrder())));
     private final IPAddressRange addressRange;
 
     public IPRange(@Nullable IPAddressRange addressRange) {
@@ -110,7 +111,7 @@ public class IPRange implements Serializable, IPRangeHandler, Comparable<IPRange
 
     @Override
     public int compareTo(IPRange other) {
-        return getAddressRange().compareTo(other.getAddressRange());
+        return COMPARATOR.compare(this, other);
     }
 
     @Override

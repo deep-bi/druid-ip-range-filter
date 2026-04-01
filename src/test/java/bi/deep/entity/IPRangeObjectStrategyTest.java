@@ -24,6 +24,7 @@ import bi.deep.entity.dimension.IPRangeObjectStrategy;
 import inet.ipaddr.format.IPAddressRange;
 import java.nio.ByteBuffer;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -45,6 +46,19 @@ class IPRangeObjectStrategyTest {
         IPAddressRange addressRange = range.getAddressRange();
         addressRange = addressRange.getLower().spanWithRange(addressRange.getUpper());
         assertEquals(addressRange, deserialized.getAddressRange());
+    }
+
+    @Test
+    void testEmptyRangeSerialization() {
+        IPRange range = IPRange.EMPTY;
+        byte[] bytes = IPRangeObjectStrategy.INSTANCE.toBytes(range);
+        assertNotNull(bytes);
+        assertEquals(0, bytes.length);
+
+        ByteBuffer wrap = ByteBuffer.wrap(bytes);
+        IPRange deserialized = IPRangeObjectStrategy.INSTANCE.fromByteBuffer(wrap, bytes.length);
+        assertNotNull(deserialized);
+        assertEquals(range.getAddressRange(), deserialized.getAddressRange());
     }
 
     static Stream<Arguments> provideTestCases() {
