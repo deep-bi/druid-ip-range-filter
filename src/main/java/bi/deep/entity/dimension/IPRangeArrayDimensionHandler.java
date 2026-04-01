@@ -49,7 +49,7 @@ public class IPRangeArrayDimensionHandler implements DimensionHandler<IPRangeArr
     }
 
     @Override
-    public DimensionIndexer<IPRangeArray, IPRangeArray, IPRangeArray> makeIndexer(boolean useMaxMemoryEstimates) {
+    public DimensionIndexer<IPRangeArray, IPRangeArray, IPRangeArray> makeIndexer() {
         return new IPRangeArrayDimensionIndexer();
     }
 
