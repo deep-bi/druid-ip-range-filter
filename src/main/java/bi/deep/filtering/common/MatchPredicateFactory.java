@@ -43,27 +43,32 @@ public class MatchPredicateFactory implements DruidPredicateFactory {
 
     @Override
     public DruidObjectPredicate<String> makeStringPredicate() {
-        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
+        throw DruidException.defensive(
+                "ip_native_match supports only ipRange or ipRangeArray types, but received a String type");
     }
 
     @Override
     public DruidLongPredicate makeLongPredicate() {
-        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
+        throw DruidException.defensive(
+                "ip_native_match supports only ipRange or ipRangeArray types, but received a Long type");
     }
 
     @Override
     public DruidFloatPredicate makeFloatPredicate() {
-        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
+        throw DruidException.defensive(
+                "ip_native_match supports only ipRange or ipRangeArray types, but received a Float type");
     }
 
     @Override
     public DruidDoublePredicate makeDoublePredicate() {
-        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
+        throw DruidException.defensive(
+                "ip_native_match supports only ipRange or ipRangeArray types, but received a Double type");
     }
 
     @Override
     public DruidObjectPredicate<Object[]> makeArrayPredicate(@Nullable TypeSignature<ValueType> inputType) {
-        throw DruidException.defensive("ip_native_match equality is supported only for ipRange or ipRangeArray types");
+        throw DruidException.defensive(
+                "ip_native_match supports only ipRange or ipRangeArray types, but received a Array type");
     }
 
     @Override
@@ -82,7 +87,8 @@ public class MatchPredicateFactory implements DruidPredicateFactory {
             }
 
             throw DruidException.defensive(
-                    "ip_native_match equality is supported only for ipRange or ipRangeArray types");
+                    "ip_native_match supports only ipRange or ipRangeArray types, but received a "
+                            + object.getClass().getSimpleName() + " type");
         };
     }
 }
