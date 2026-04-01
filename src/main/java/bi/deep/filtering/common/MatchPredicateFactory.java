@@ -69,6 +69,9 @@ public class MatchPredicateFactory implements DruidPredicateFactory {
     @Override
     public DruidObjectPredicate<Object> makeObjectPredicate() {
         return object -> {
+            if (object == null) {
+                return DruidPredicateMatch.FALSE;
+            }
             if (object instanceof IPRange) {
                 IPRange ipRange = (IPRange) object;
                 return DruidPredicateMatch.of(ipRange.contains(ips));
