@@ -52,7 +52,7 @@ public class IPRangeObjectStrategy implements ObjectStrategy<IPRange> {
 
     @Override
     public byte[] toBytes(@Nullable IPRange range) {
-        if (range == null) {
+        if (range == null || range == IPRange.EMPTY) {
             return EMPTY_BYTES;
         }
 
