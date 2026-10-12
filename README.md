@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> This extension was moved to <https://github.com/deep-bi/deep-druid-extensions/tree/main/druid-ip-range-filter>. Please find the releases for latest Druid versions [here](https://github.com/deep-bi/deep-druid-extensions/releases).
+
 # Druid IP Range Filter Extension
 
 This repository provides an Apache Druid extension for filtering based on IP address ranges. This filter is useful in
